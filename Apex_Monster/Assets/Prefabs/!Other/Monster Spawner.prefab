@@ -30,7 +30,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7720915940141726638
 MonoBehaviour:
@@ -46,6 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   windGust: {fileID: 83434062563891065, guid: 0cc68b9c817bc8548abda2959a48b24c, type: 3}
   confetti: {fileID: 320497758631505516, guid: 7f72ef04864d25844805a231e267327c, type: 3}
+  darkConfetti: {fileID: 8789350007190929540, guid: b041e28cd1597a941bd07923f9139978, type: 3}
   screenDot: {fileID: 1483750061961318467, guid: d7b6e018a6e55fe46a279223a9bb19a4, type: 3}
   inventoryScreenOffset: 1.55
   screenOffset: 0.75

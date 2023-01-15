@@ -7,6 +7,7 @@ public class MonsterSpawner : MonoBehaviour
     [Header("Particles")]
     [SerializeField] GameObject windGust;
     [SerializeField] GameObject confetti;
+    [SerializeField] GameObject darkConfetti;
 
     [Header("Screen Customizable")]
     [SerializeField] GameObject screenDot;
@@ -115,7 +116,7 @@ public class MonsterSpawner : MonoBehaviour
         switch (monster1.type)
         {
             case "Chieftain":
-                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby")
+                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
                 {
                     SpawnUndead(0, monster1, monster2);
                     return;
@@ -140,7 +141,7 @@ public class MonsterSpawner : MonoBehaviour
                     monster2.Delete();
                     return;
                 }
-                else if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby")
+                else if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
                 {
                     SpawnUndead(1, monster1, monster2);
                     return;
@@ -158,7 +159,7 @@ public class MonsterSpawner : MonoBehaviour
                 break;
 
             case "Magic":
-                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby")
+                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
                 {
                     SpawnUndead(2, monster1, monster2);
                     return;
@@ -166,7 +167,7 @@ public class MonsterSpawner : MonoBehaviour
                 break;
 
             case "Beast":
-                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby")
+                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
                 {
                     SpawnUndead(3, monster1, monster2);
                     return;
@@ -174,7 +175,7 @@ public class MonsterSpawner : MonoBehaviour
                 break;
 
             case "Bird":
-                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby")
+                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
                 {
                     SpawnUndead(4, monster1, monster2);
                     return;
@@ -225,7 +226,7 @@ public class MonsterSpawner : MonoBehaviour
                 break;
 
             case "Mounted":
-                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby")
+                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
                 {
                     SpawnUndead(9, monster1, monster2);
                     return;
@@ -255,43 +256,6 @@ public class MonsterSpawner : MonoBehaviour
             CheckMonstersAtScreenEdge();
         }
     }
-
-    void SpawnUndead(int monsterTypeID, Monster monster1, Monster monster2)
-    {
-        monster1.Delete();
-        monster2.LoseHealth(1);
-
-        GameObject newUndead;
-        newUndead = monsterTypeID switch
-        {
-            0 => Instantiate(gm.chieftains[3]),
-            1 => Instantiate(gm.warriors[3]),
-            2 => Instantiate(gm.magics[3]),
-            3 => Instantiate(gm.beasts[3]),
-            4 => Instantiate(gm.birds[3]),
-            5 => Instantiate(gm.babies[3]),
-            6 => Instantiate(gm.bosses[3]),
-            7 => Instantiate(gm.flats[3]),
-            8 => Instantiate(gm.bobbles[3]),
-            9 => Instantiate(gm.mounted[3]),
-            _ => Instantiate(gm.chieftains[3]),
-        };
-        newUndead.transform.position = new Vector2(monster2.transform.position.x, monster2.transform.position.y);
-        CheckMonstersAtScreenEdge();
-    }
-
-    private void MonsterLevelUp(Monster monster1)
-    {
-        monster1.transform.localScale = new Vector3(monster1.startSize.x + 0.5f, monster1.startSize.y + 0.5f, monster1.startSize.z + 0.5f);
-        monster1.startSize = monster1.transform.localScale;
-        monster1.level++;
-        monster1.inventorySize *= 0.75f;
-        GameObject newConfetti = Instantiate(confetti);
-        newConfetti.transform.position = monster1.transform.position;
-        FindObjectOfType<AudioManager>().celebrationAS.PlayOneShot(FindObjectOfType<AudioManager>().celebration);
-        CheckMonstersAtScreenEdge();
-    }
-
     public void SpawnRandomBabies(int amount = 1, float x = 0, float y = 0, bool randomizeSpawnPosition = false)
     {
         for (int i = 0; i < amount; i++)
@@ -308,6 +272,34 @@ public class MonsterSpawner : MonoBehaviour
             CheckMonstersAtScreenEdge();
         }
     }
+
+    private void MonsterLevelUp(Monster monster1)
+    {
+        monster1.transform.localScale = new Vector3(monster1.startSize.x + 0.5f, monster1.startSize.y + 0.5f, monster1.startSize.z + 0.5f);
+        monster1.startSize = monster1.transform.localScale;
+        monster1.level++;
+        monster1.inventorySize *= 0.75f;
+        SpawnConfetti(monster1.gameObject);
+        CheckMonstersAtScreenEdge();
+    }
+
+    private void SpawnConfetti(GameObject monster, Monster infectorMonster = null)
+    {
+        GameObject newConfetti;
+        if (monster.CompareTag("Undead") && infectorMonster != null && infectorMonster.CompareTag("Undead") && infectorMonster.GetComponent<Monster>().type == "Baby")
+        {
+            FindObjectOfType<AudioManager>().celebrationAS.pitch = 1f;
+            newConfetti = Instantiate(darkConfetti);
+        }
+        else
+        {
+            FindObjectOfType<AudioManager>().celebrationAS.pitch = 1.5f;
+            newConfetti = Instantiate(confetti);
+        }
+        FindObjectOfType<AudioManager>().celebrationAS.PlayOneShot(FindObjectOfType<AudioManager>().celebration);
+        newConfetti.transform.position = monster.transform.position;
+    }
+
 
     public void SpawnChieftain(Monster monster1, float x = 0, float y = 0)
     {
@@ -327,13 +319,14 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.chieftains[0]),
         };
         newChieftain.transform.position = new Vector2(x, y);
+        SpawnConfetti(newChieftain);
         CheckMonstersAtScreenEdge();
     }
 
     public void SpawnMagic(Monster monster1, float x = 0, float y = 0)
     {
-        GameObject newChieftain;
-        newChieftain = monster1.tag switch
+        GameObject newMagic;
+        newMagic = monster1.tag switch
         {
             "Hypnotic" => Instantiate(gm.magics[0]),
             "Robotic" => Instantiate(gm.magics[1]),
@@ -347,14 +340,15 @@ public class MonsterSpawner : MonoBehaviour
             "Sinister" => Instantiate(gm.magics[9]),
             _ => Instantiate(gm.magics[0]),
         };
-        newChieftain.transform.position = new Vector2(x, y);
+        newMagic.transform.position = new Vector2(x, y);
+        SpawnConfetti(newMagic);
         CheckMonstersAtScreenEdge();
     }
 
     public void SpawnBeast(Monster monster1, float x = 0, float y = 0)
     {
-        GameObject newChieftain;
-        newChieftain = monster1.tag switch
+        GameObject newBeast;
+        newBeast = monster1.tag switch
         {
             "Hypnotic" => Instantiate(gm.beasts[0]),
             "Robotic" => Instantiate(gm.beasts[1]),
@@ -368,7 +362,8 @@ public class MonsterSpawner : MonoBehaviour
             "Sinister" => Instantiate(gm.beasts[9]),
             _ => Instantiate(gm.beasts[0]),
         };
-        newChieftain.transform.position = new Vector2(x, y);
+        newBeast.transform.position = new Vector2(x, y);
+        SpawnConfetti(newBeast);
         CheckMonstersAtScreenEdge();
     }
 
@@ -390,6 +385,7 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.birds[0]),
         };
         newBird.transform.position = new Vector2(x, y);
+        SpawnConfetti(newBird);
         CheckMonstersAtScreenEdge();
     }
 
@@ -411,6 +407,32 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.mounted[0]),
         };
         newMounted.transform.position = new Vector2(x, y);
+        SpawnConfetti(newMounted);
+        CheckMonstersAtScreenEdge();
+    }
+
+    void SpawnUndead(int monsterTypeID, Monster monster1, Monster monster2)
+    {
+        monster1.Delete();
+        monster2.Delete();
+
+        GameObject newUndead;
+        newUndead = monsterTypeID switch
+        {
+            0 => Instantiate(gm.chieftains[3]),
+            1 => Instantiate(gm.warriors[3]),
+            2 => Instantiate(gm.magics[3]),
+            3 => Instantiate(gm.beasts[3]),
+            4 => Instantiate(gm.birds[3]),
+            5 => Instantiate(gm.babies[3]),
+            6 => Instantiate(gm.bosses[3]),
+            7 => Instantiate(gm.flats[3]),
+            8 => Instantiate(gm.bobbles[3]),
+            9 => Instantiate(gm.mounted[3]),
+            _ => Instantiate(gm.chieftains[3]),
+        };
+        newUndead.transform.position = new Vector2(monster2.transform.position.x, monster2.transform.position.y);
+        SpawnConfetti(newUndead, monster2);
         CheckMonstersAtScreenEdge();
     }
 }
