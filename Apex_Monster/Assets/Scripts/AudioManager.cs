@@ -69,6 +69,9 @@ public class AudioManager : MonoBehaviour
     {
         if (playCelebration)
         {
+            GameObject newConfetti = Instantiate(FindObjectOfType<MonsterSpawner>().confetti);
+            newConfetti.transform.position = Vector2.zero;
+            Destroy(newConfetti, 2);
             celebrationAS.PlayOneShot(celebration);
             playCelebration = false;
         }

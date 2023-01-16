@@ -94,6 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2597130646935079149}
   - component: {fileID: 2597130646935079150}
+  - component: {fileID: 134242484}
   m_Layer: 0
   m_Name: Body
   m_TagString: Untagged
@@ -168,6 +169,64 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!60 &134242484
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2597130646935079148}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.3617071, y: 0.19607435}
+    oldSize: {x: 1.34, y: 1.41}
+    newSize: {x: 1.26, y: 1.14}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 0.30531248, y: 0.043535154}
+      - {x: 0.3953125, y: 0.053535156}
+      - {x: 0.5553125, y: 0.10353515}
+      - {x: 0.6453125, y: 0.21353514}
+      - {x: 0.7453125, y: 0.33353513}
+      - {x: 0.7453125, y: 0.42353514}
+      - {x: 0.7853125, y: 0.52353513}
+      - {x: 0.7853125, y: 0.70353514}
+      - {x: 0.7753125, y: 0.7835351}
+      - {x: 0.54531246, y: 1.0135351}
+      - {x: 0.46531248, y: 1.0435351}
+      - {x: 0.30531248, y: 1.0735351}
+      - {x: 0.0853125, y: 1.0735351}
+      - {x: 0.015312499, y: 0.9735351}
+      - {x: -0.1446875, y: 0.9135351}
+      - {x: -0.20468749, y: 0.86353517}
+      - {x: -0.3046875, y: 0.75353515}
+      - {x: -0.4046875, y: 0.52353513}
+      - {x: -0.4046875, y: 0.37353516}
+      - {x: -0.35468748, y: 0.27353516}
+      - {x: -0.3046875, y: 0.20353515}
+      - {x: -0.20468749, y: 0.13353515}
+      - {x: -0.2646875, y: -0.016464842}
+      - {x: -0.2746875, y: -0.056464843}
+      - {x: -0.1846875, y: -0.11646484}
+      - {x: -0.114687495, y: -0.15646484}
+      - {x: -0.0546875, y: -0.18646485}
+      - {x: 0.0853125, y: -0.18646485}
+      - {x: 0.1353125, y: -0.16646484}
+      - {x: 0.2553125, y: -0.13646483}
+      - {x: 0.30531248, y: -0.10646484}
+      - {x: 0.2953125, y: -0.026464842}
+  m_UseDelaunayMesh: 0
 --- !u!1 &2597130647597929751
 GameObject:
   m_ObjectHideFlags: 0
@@ -416,7 +475,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2597130648017907169}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0

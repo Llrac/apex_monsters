@@ -72,7 +72,7 @@ public class Monster : UsefulVariableClass
 
         foreach (Transform child in transform)
         {
-            if (child.gameObject.GetComponent<SpriteRenderer>() != null && child.name == "Glow")
+            if (child.gameObject.GetComponent<SpriteRenderer>() && child.name == "Glow")
             {
                 glow = child.gameObject;
                 glow.SetActive(false);
@@ -137,7 +137,7 @@ public class Monster : UsefulVariableClass
             anim.SetBool("isMoving", true);
         if (glow != null && gm.enableDragGlow)
             glow.SetActive(true);
-        cursor.UpdateCursor(true);
+        cursor?.UpdateCursor(true);
 
         EnableAllTriggers(true);
 
@@ -179,7 +179,7 @@ public class Monster : UsefulVariableClass
             anim.SetBool("isMoving", false);
         if (glow != null && gm.enableDragGlow)
             glow.SetActive(false);
-        cursor.UpdateCursor(false);
+        cursor?.UpdateCursor(false);
 
         int targetedLimb = 0;
         foreach (SpriteRenderer spriteRenderer in spriteRenderers)
@@ -225,7 +225,7 @@ public class Monster : UsefulVariableClass
         }
         else
         {
-            mergeMonster = collision.transform.parent.gameObject;
+            mergeMonster = collision.GetComponentInParent<Monster>().gameObject;
         }
     }
 
@@ -257,24 +257,13 @@ public class Monster : UsefulVariableClass
 
     void EnableAllTriggers(bool enable)
     {
-        PolygonCollider2D mPolyCollider = null;
         foreach (Monster monster in FindObjectsOfType<Monster>())
         {
-            if (monster.GetComponent<PolygonCollider2D>() != null)
+            PolygonCollider2D[] colliders = GetComponentsInChildren<PolygonCollider2D>();
+            foreach (PolygonCollider2D collider in colliders)
             {
-                mPolyCollider = monster.GetComponent<PolygonCollider2D>();
+                collider.isTrigger = enable;
             }
-            else
-            {
-                foreach (Transform child in monster.transform)
-                {
-                    if (child.gameObject.GetComponent<PolygonCollider2D>() != null)
-                    {
-                        mPolyCollider = child.gameObject.GetComponent<PolygonCollider2D>();
-                    }
-                }
-            }
-            mPolyCollider.isTrigger = enable;
         }
 
         FindObjectOfType<Inventory>().slotCollider.enabled = enable;

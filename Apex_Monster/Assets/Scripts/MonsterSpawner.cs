@@ -6,7 +6,7 @@ public class MonsterSpawner : MonoBehaviour
 {
     [Header("Particles")]
     [SerializeField] GameObject windGust;
-    [SerializeField] GameObject confetti;
+    public GameObject confetti;
     [SerializeField] GameObject darkConfetti;
 
     [Header("Screen Customizable")]
@@ -110,6 +110,8 @@ public class MonsterSpawner : MonoBehaviour
             spawnBabies = false;
         }
     }
+
+    
 
     public void Merge(Monster monster1, Monster monster2, bool lastTry = false)
     {
@@ -298,6 +300,7 @@ public class MonsterSpawner : MonoBehaviour
         }
         FindObjectOfType<AudioManager>().celebrationAS.PlayOneShot(FindObjectOfType<AudioManager>().celebration);
         newConfetti.transform.position = monster.transform.position;
+        Destroy(newConfetti, 2);
     }
 
 
@@ -431,6 +434,8 @@ public class MonsterSpawner : MonoBehaviour
             9 => Instantiate(gm.mounted[3]),
             _ => Instantiate(gm.chieftains[3]),
         };
+        newUndead.GetComponent<Monster>().startSize = monster1.startSize;
+        newUndead.transform.localScale = newUndead.GetComponent<Monster>().startSize;
         newUndead.transform.position = new Vector2(monster2.transform.position.x, monster2.transform.position.y);
         SpawnConfetti(newUndead, monster2);
         CheckMonstersAtScreenEdge();

@@ -156,6 +156,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7838257636780805795}
   - component: {fileID: 7838257636780805794}
+  - component: {fileID: 2082671104}
   m_Layer: 0
   m_Name: Arms
   m_TagString: Untagged
@@ -230,6 +231,49 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!60 &2082671104
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7838257636780805792}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.22765979, y: 0.9101771}
+    oldSize: {x: 0.57, y: 0.82}
+    newSize: {x: 1.18, y: 0.8}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 0.4002339, y: -0.3063452}
+      - {x: 0.2602339, y: -0.2463452}
+      - {x: 0.19023392, y: -0.106345214}
+      - {x: 0.11023392, y: 0.073654786}
+      - {x: -0.08976608, y: 0.073654786}
+      - {x: -0.11976608, y: 0.043654785}
+      - {x: -0.12976608, y: -0.036345214}
+      - {x: -0.12976608, y: -0.2563452}
+      - {x: -0.07976608, y: -0.4263452}
+      - {x: -0.08976608, y: -0.4763452}
+      - {x: -0.07976608, y: -0.5563452}
+      - {x: -0.009766082, y: -0.6463452}
+      - {x: 0.2002339, y: -0.7463452}
+      - {x: 0.3002339, y: -0.7463452}
+      - {x: 0.4102339, y: -0.6363452}
+      - {x: 0.44023392, y: -0.5363452}
+      - {x: 0.44023392, y: -0.4263452}
+  m_UseDelaunayMesh: 0
 --- !u!1 &7838257636923719067
 GameObject:
   m_ObjectHideFlags: 0
@@ -340,7 +384,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7838257636928248598}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
