@@ -429,7 +429,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
-  m_Pitch: 1
+  m_Pitch: 1.25
   Loop: 0
   Mute: 0
   Spatialize: 0
@@ -563,6 +563,7 @@ MonoBehaviour:
   backgroundMusicAS: {fileID: 0}
   battleMusicAS: {fileID: 0}
   sfxAS: {fileID: 0}
+  celebrationAS: {fileID: 0}
   dropletsOfDew: {fileID: 8300000, guid: aded2fa114e7bf546bf1e1d5f04766a6, type: 3}
   shadesOfOrange: {fileID: 8300000, guid: 80304396d73640b438991798b49383e4, type: 3}
   undeniable: {fileID: 8300000, guid: a7faae072eabe284cae6252b90dfe4ef, type: 3}

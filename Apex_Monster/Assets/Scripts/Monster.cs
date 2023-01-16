@@ -35,7 +35,7 @@ public class Monster : UsefulVariableClass
     [HideInInspector] public int mergeProgress = 0;
     bool hasPlayedSFX = false;
     Vector2 mergePosition;
-    public GameObject mergeMonster;
+    GameObject mergeMonster;
 
     Collider2D slotCollider;
     [HideInInspector] public bool insideInventory = false;
