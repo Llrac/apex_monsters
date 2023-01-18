@@ -14,4 +14,5 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ShowQR.unity
     guid: 16a71231d820f3542bc84e8661e00f62
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: 9ea62d218d8537142858312d91b38ef9, type: 2}

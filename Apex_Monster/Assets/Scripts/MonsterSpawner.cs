@@ -26,18 +26,15 @@ public class MonsterSpawner : MonoBehaviour
         gm = FindObjectOfType<GameManager>();
 
         UpdateScreenDots();
-
-        //SpawnRandomBabies(7, 0, 0, true);
     }
 
-    #region Screen Functions
-    public void CheckMonstersAtScreenEdge()
+    #region Screen
+    public void UpdateMonsterPositions()
     {
         foreach (GameObject dot in screenDots)
         {
             Destroy(dot);
         }
-
         UpdateScreenDots();
 
         foreach (Monster monster in FindObjectsOfType<Monster>())
@@ -76,6 +73,10 @@ public class MonsterSpawner : MonoBehaviour
         monster.gameObject.transform.position = new Vector2(
             Mathf.Clamp(monster.gameObject.transform.position.x, -screenSize.x + screenOffset * 1.2f, screenSize.x - screenOffset * 1.2f),
             Mathf.Clamp(monster.gameObject.transform.position.y, -screenSize.y + inventoryScreenOffset + screenOffset * 0.2f, screenSize.y - screenOffset * 1.2f));
+        
+        UpdateMonsterPositions();
+
+        if (!windGust) { return; }
 
         GameObject newWindGust = Instantiate(windGust);
         newWindGust.transform.position = monster.transform.position;
@@ -97,7 +98,6 @@ public class MonsterSpawner : MonoBehaviour
         {
             newWindGust.transform.eulerAngles = new Vector3(-90, -90, -90);
         }
-        CheckMonstersAtScreenEdge();
     }
     #endregion
 
@@ -111,10 +111,17 @@ public class MonsterSpawner : MonoBehaviour
         }
     }
 
-    
-
     public void Merge(Monster monster1, Monster monster2, bool lastTry = false)
     {
+        if (monster1.CompareTag("Porcine") && monster1.startSize != new Vector3(1, 1, 1) && monster2.type != "Chieftain" && monster2.type != "Baby" ||
+            monster2.CompareTag("Porcine") && monster1.startSize != new Vector3(1, 1, 1) && monster1.type != "Chieftain" && monster1.type != "Baby")
+        {
+            SpawnBoss(monster2, monster2.transform.position.x, monster2.transform.position.y);
+            monster1.Delete();
+            monster2.Delete();
+            return;
+        }
+
         switch (monster1.type)
         {
             case "Chieftain":
@@ -127,8 +134,7 @@ public class MonsterSpawner : MonoBehaviour
                 {
                     if (monster2.CompareTag("Plantlike"))
                     {
-                        monster1.LoseHealth(1);
-                        SpawnRandomBabies(monster2.currentHealth * 2, monster2.transform.position.x, monster2.transform.position.y);
+                        SpawnRandomBabies(3, monster2.transform.position.x, monster2.transform.position.y);
                         monster2.Delete();
                         return;
                     }
@@ -138,7 +144,7 @@ public class MonsterSpawner : MonoBehaviour
             case "Warrior":
                 if (monster2.type == "Warrior" && monster2.CompareTag(monster1.tag))
                 {
-                    SpawnChieftain(monster1, monster2.transform.position.x, monster2.transform.position.y);
+                    SpawnChieftain(monster2, monster2.transform.position.x, monster2.transform.position.y);
                     monster1.Delete();
                     monster2.Delete();
                     return;
@@ -152,8 +158,7 @@ public class MonsterSpawner : MonoBehaviour
                 {
                     if (monster2.CompareTag("Plantlike"))
                     {
-                        monster1.LoseHealth(1);
-                        SpawnRandomBabies(monster2.currentHealth, monster2.transform.position.x, monster2.transform.position.y);
+                        SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y);
                         monster2.Delete();
                         return;
                     }
@@ -185,30 +190,43 @@ public class MonsterSpawner : MonoBehaviour
                 break;
 
             case "Baby":
-                if (monster1.CompareTag("Farming") && monster2.type == "Baby")
+                if (monster1.CompareTag("Sinister") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize ||
+                    monster2.CompareTag("Sinister") && !monster1.CompareTag("Undead") && monster1.type == "Baby" && monster1.startSize == monster2.startSize)
                 {
-                    SpawnBird(monster2, monster2.transform.position.x, monster2.transform.position.y);
+                    SpawnWarrior(monster2, monster2.transform.position.x, monster2.transform.position.y);
                     monster1.Delete();
                     monster2.Delete();
                     return;
                 }
-                else if (monster1.CompareTag("Plated") && monster2.type == "Baby")
+                else if (monster1.CompareTag("Porcine") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
+                {
+                    if (monster2.CompareTag("Porcine") && monster1.startSize == monster2.startSize)
+                    {
+                        MonsterLevelUp(monster1, monster2);
+                        return;
+                    }
+                    SpawnBeast(monster2, monster2.transform.position.x, monster2.transform.position.y);
+                    monster1.Delete();
+                    monster2.Delete();
+                    return;
+                }
+                else if (monster1.CompareTag("Plated") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
                 {
                     SpawnMounted(monster2, monster2.transform.position.x, monster2.transform.position.y);
                     monster1.Delete();
                     monster2.Delete();
                     return;
                 }
-                else if (monster1.CompareTag("Cloudy") && monster2.type == "Baby")
+                else if (monster1.CompareTag("Cloudy") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
                 {
                     SpawnMagic(monster2, monster2.transform.position.x, monster2.transform.position.y);
                     monster1.Delete();
                     monster2.Delete();
                     return;
                 }
-                else if (monster1.CompareTag("Porcine") && monster2.type == "Baby")
+                else if (monster1.CompareTag("Farming") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
                 {
-                    SpawnBeast(monster2, monster2.transform.position.x, monster2.transform.position.y);
+                    SpawnBird(monster2, monster2.transform.position.x, monster2.transform.position.y);
                     monster1.Delete();
                     monster2.Delete();
                     return;
@@ -242,8 +260,7 @@ public class MonsterSpawner : MonoBehaviour
 
         if (monster1.type == monster2.type && monster1.CompareTag(monster2.tag) && monster1.startSize == monster2.startSize)
         {
-            MonsterLevelUp(monster1);
-            monster2.Delete();
+            MonsterLevelUp(monster1, monster2);
             return;
         }
 
@@ -255,9 +272,10 @@ public class MonsterSpawner : MonoBehaviour
         {
             monster1.transform.localScale = monster1.startSize;
             monster2.transform.localScale = monster2.startSize;
-            CheckMonstersAtScreenEdge();
+            UpdateMonsterPositions();
         }
     }
+
     public void SpawnRandomBabies(int amount = 1, float x = 0, float y = 0, bool randomizeSpawnPosition = false)
     {
         for (int i = 0; i < amount; i++)
@@ -271,26 +289,27 @@ public class MonsterSpawner : MonoBehaviour
             {
                 newBaby.transform.position = new Vector2(x, y);
             }
-            CheckMonstersAtScreenEdge();
+            UpdateMonsterPositions();
         }
     }
 
-    private void MonsterLevelUp(Monster monster1)
+    void MonsterLevelUp(Monster monster1, Monster monster2)
     {
+        monster2.Delete();
         monster1.transform.localScale = new Vector3(monster1.startSize.x + 0.5f, monster1.startSize.y + 0.5f, monster1.startSize.z + 0.5f);
         monster1.startSize = monster1.transform.localScale;
         monster1.level++;
         monster1.inventorySize *= 0.75f;
-        SpawnConfetti(monster1.gameObject);
-        CheckMonstersAtScreenEdge();
+        CreateConfetti(monster1.gameObject, monster2.gameObject);
+        UpdateMonsterPositions();
     }
 
-    private void SpawnConfetti(GameObject monster, Monster infectorMonster = null)
+    void CreateConfetti(GameObject monster, GameObject infectorMonster = null)
     {
         GameObject newConfetti;
-        if (monster.CompareTag("Undead") && infectorMonster != null && infectorMonster.CompareTag("Undead") && infectorMonster.GetComponent<Monster>().type == "Baby")
+        if (monster.CompareTag("Undead") && infectorMonster != null && infectorMonster.CompareTag("Undead"))
         {
-            FindObjectOfType<AudioManager>().celebrationAS.pitch = 1f;
+            FindObjectOfType<AudioManager>().celebrationAS.pitch = 1.25f;
             newConfetti = Instantiate(darkConfetti);
         }
         else
@@ -298,16 +317,16 @@ public class MonsterSpawner : MonoBehaviour
             FindObjectOfType<AudioManager>().celebrationAS.pitch = 1.5f;
             newConfetti = Instantiate(confetti);
         }
-        FindObjectOfType<AudioManager>().celebrationAS.PlayOneShot(FindObjectOfType<AudioManager>().celebration);
+        FindObjectOfType<AudioManager>().celebrationAS.PlayOneShot(FindObjectOfType<AudioManager>().celebrate);
         newConfetti.transform.position = monster.transform.position;
         Destroy(newConfetti, 2);
     }
 
-
-    public void SpawnChieftain(Monster monster1, float x = 0, float y = 0)
+    #region Spawn
+    public void SpawnChieftain(Monster monster, float x = 0, float y = 0)
     {
         GameObject newChieftain;
-        newChieftain = monster1.tag switch
+        newChieftain = monster.tag switch
         {
             "Hypnotic" => Instantiate(gm.chieftains[0]),
             "Robotic" => Instantiate(gm.chieftains[1]),
@@ -322,14 +341,36 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.chieftains[0]),
         };
         newChieftain.transform.position = new Vector2(x, y);
-        SpawnConfetti(newChieftain);
-        CheckMonstersAtScreenEdge();
+        CreateConfetti(newChieftain, newChieftain);
+        UpdateMonsterPositions();
     }
 
-    public void SpawnMagic(Monster monster1, float x = 0, float y = 0)
+    public void SpawnWarrior(Monster monster, float x = 0, float y = 0)
+    {
+        GameObject newWarrior;
+        newWarrior = monster.tag switch
+        {
+            "Hypnotic" => Instantiate(gm.warriors[0]),
+            "Robotic" => Instantiate(gm.warriors[1]),
+            "Reptilian" => Instantiate(gm.warriors[2]),
+            "Undead" => Instantiate(gm.warriors[3]),
+            "Porcine" => Instantiate(gm.warriors[4]),
+            "Plated" => Instantiate(gm.warriors[5]),
+            "Cloudy" => Instantiate(gm.warriors[6]),
+            "Farming" => Instantiate(gm.warriors[7]),
+            "Plantlike" => Instantiate(gm.warriors[8]),
+            "Sinister" => Instantiate(gm.warriors[9]),
+            _ => Instantiate(gm.warriors[0]),
+        };
+        newWarrior.transform.position = new Vector2(x, y);
+        CreateConfetti(newWarrior, newWarrior);
+        UpdateMonsterPositions();
+    }
+
+    public void SpawnMagic(Monster monster, float x = 0, float y = 0)
     {
         GameObject newMagic;
-        newMagic = monster1.tag switch
+        newMagic = monster.tag switch
         {
             "Hypnotic" => Instantiate(gm.magics[0]),
             "Robotic" => Instantiate(gm.magics[1]),
@@ -344,14 +385,14 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.magics[0]),
         };
         newMagic.transform.position = new Vector2(x, y);
-        SpawnConfetti(newMagic);
-        CheckMonstersAtScreenEdge();
+        CreateConfetti(newMagic, newMagic);
+        UpdateMonsterPositions();
     }
 
-    public void SpawnBeast(Monster monster1, float x = 0, float y = 0)
+    public void SpawnBeast(Monster monster, float x = 0, float y = 0)
     {
         GameObject newBeast;
-        newBeast = monster1.tag switch
+        newBeast = monster.tag switch
         {
             "Hypnotic" => Instantiate(gm.beasts[0]),
             "Robotic" => Instantiate(gm.beasts[1]),
@@ -366,14 +407,14 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.beasts[0]),
         };
         newBeast.transform.position = new Vector2(x, y);
-        SpawnConfetti(newBeast);
-        CheckMonstersAtScreenEdge();
+        CreateConfetti(newBeast, newBeast);
+        UpdateMonsterPositions();
     }
 
-    public void SpawnBird(Monster monster1, float x = 0, float y = 0)
+    public void SpawnBird(Monster monster, float x = 0, float y = 0)
     {
         GameObject newBird;
-        newBird = monster1.tag switch
+        newBird = monster.tag switch
         {
             "Hypnotic" => Instantiate(gm.birds[0]),
             "Robotic" => Instantiate(gm.birds[1]),
@@ -388,14 +429,36 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.birds[0]),
         };
         newBird.transform.position = new Vector2(x, y);
-        SpawnConfetti(newBird);
-        CheckMonstersAtScreenEdge();
+        CreateConfetti(newBird, newBird);
+        UpdateMonsterPositions();
     }
 
-    public void SpawnMounted(Monster monster1, float x = 0, float y = 0)
+    public void SpawnBoss(Monster monster, float x = 0, float y = 0)
+    {
+        GameObject newBoss;
+        newBoss = monster.tag switch
+        {
+            "Hypnotic" => Instantiate(gm.bosses[0]),
+            "Robotic" => Instantiate(gm.bosses[1]),
+            "Reptilian" => Instantiate(gm.bosses[2]),
+            "Undead" => Instantiate(gm.bosses[3]),
+            "Porcine" => Instantiate(gm.bosses[4]),
+            "Plated" => Instantiate(gm.bosses[5]),
+            "Cloudy" => Instantiate(gm.bosses[6]),
+            "Farming" => Instantiate(gm.bosses[7]),
+            "Plantlike" => Instantiate(gm.bosses[8]),
+            "Sinister" => Instantiate(gm.bosses[9]),
+            _ => Instantiate(gm.bosses[0]),
+        };
+        newBoss.transform.position = new Vector2(x, y);
+        CreateConfetti(newBoss, newBoss);
+        UpdateMonsterPositions();
+    }
+
+    public void SpawnMounted(Monster monster, float x = 0, float y = 0)
     {
         GameObject newMounted;
-        newMounted = monster1.tag switch
+        newMounted = monster.tag switch
         {
             "Hypnotic" => Instantiate(gm.mounted[0]),
             "Robotic" => Instantiate(gm.mounted[1]),
@@ -410,8 +473,8 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.mounted[0]),
         };
         newMounted.transform.position = new Vector2(x, y);
-        SpawnConfetti(newMounted);
-        CheckMonstersAtScreenEdge();
+        CreateConfetti(newMounted, newMounted);
+        UpdateMonsterPositions();
     }
 
     void SpawnUndead(int monsterTypeID, Monster monster1, Monster monster2)
@@ -437,7 +500,8 @@ public class MonsterSpawner : MonoBehaviour
         newUndead.GetComponent<Monster>().startSize = monster1.startSize;
         newUndead.transform.localScale = newUndead.GetComponent<Monster>().startSize;
         newUndead.transform.position = new Vector2(monster2.transform.position.x, monster2.transform.position.y);
-        SpawnConfetti(newUndead, monster2);
-        CheckMonstersAtScreenEdge();
+        CreateConfetti(newUndead, monster2.gameObject);
+        UpdateMonsterPositions();
     }
+    #endregion
 }

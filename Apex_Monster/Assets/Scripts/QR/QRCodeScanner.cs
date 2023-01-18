@@ -15,6 +15,12 @@ public class QRCodeScanner : MonoBehaviour
     bool _isCamAvailable;
     WebCamTexture _cameraTexture;
 
+    void Start()
+    {
+        InvokeRepeating(nameof(Scan), 0.5f, 0.5f);
+        InvokeRepeating(nameof(UpdateCameraRender), 0.5f, 0.5f);
+    }
+
     void LookForCamera()
     {
         WebCamDevice[] devices = WebCamTexture.devices;
@@ -46,7 +52,6 @@ public class QRCodeScanner : MonoBehaviour
     {
         if (_cameraTexture == null)
             LookForCamera();
-        UpdateCameraRender();
     }
 
     void UpdateCameraRender()
@@ -64,7 +69,7 @@ public class QRCodeScanner : MonoBehaviour
 
     public void OnClickScan()
     {
-        Scan();
+        //Scan();
     }
 
     void Scan()

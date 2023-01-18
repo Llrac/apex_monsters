@@ -20,7 +20,7 @@ public class AudioManager : MonoBehaviour
     [Header("SFX")]
     public AudioClip mergePop1 = null;
     public AudioClip mergePop2 = null;
-    public AudioClip celebration = null;
+    public AudioClip celebrate = null;
     public bool playCelebration = false;
 
     [HideInInspector] public float sfxDelay = 0.6f;
@@ -72,7 +72,7 @@ public class AudioManager : MonoBehaviour
             GameObject newConfetti = Instantiate(FindObjectOfType<MonsterSpawner>().confetti);
             newConfetti.transform.position = Vector2.zero;
             Destroy(newConfetti, 2);
-            celebrationAS.PlayOneShot(celebration);
+            celebrationAS.PlayOneShot(celebrate);
             playCelebration = false;
         }
     }
@@ -80,7 +80,7 @@ public class AudioManager : MonoBehaviour
     public void GetNextPopSFX()
     {
         sfxAS.PlayOneShot(nextPopSFX);
-        int randomPop = Random.Range(0, 2);
+        int randomPop = Random.Range(0, 1);
         switch (randomPop)
         {
             case 0:

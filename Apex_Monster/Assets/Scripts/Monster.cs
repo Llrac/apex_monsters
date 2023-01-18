@@ -6,16 +6,23 @@ using UnityEngine;
 
 public class Monster : UsefulVariableClass
 {
-    [Tooltip("The type of monster. There are 10 unique types, each having strengths and weaknesses. " +
+    [Tooltip("The type of monster. There are 10 unique types. " +
         "Chieftain, Warrior, Magic, Beast, Bird, Baby, Boss, Flat, Bobble, Mounted")]
     public string type = "";
 
-    [Range(1, 3)] public int level = 1;
-    [Range(1, 9)] public int attack = 1;
-    [Range(1, 9)] public int startHealth = 1;
-    [HideInInspector] public int currentHealth = 1;
-    [Range(1f, 1.25f)] public float dragSize = 1.25f;
+    [Tooltip("The battle style of a monster. There are 4 unique battle styles: " +
+        "Flat & Warrior & Chieftain = Fighter, Magic & Mounted = Flying, Bobble & Beast & Boss = Huge, Baby & Bird = Neutral")]
+    public string battleStyle = "";
 
+    [HideInInspector] public int level = 1;
+
+    [Header("Stats")]
+    [Range(1, 8)] public int attack = 1;
+    [Range(1, 16)] public int startHealth = 1;
+    [HideInInspector] public int currentHealth = 1;
+
+    [Header("Size")]
+    [Range(1f, 1.25f)] public float dragSize = 1.25f;
     public Vector2 inventoryOffset;
     public float inventorySize = 1f;
 
@@ -32,31 +39,18 @@ public class Monster : UsefulVariableClass
 
     bool mayDrag = true;
     float mergeTimer = 10;
-    [HideInInspector] public int mergeProgress = 0;
     bool hasPlayedSFX = false;
     Vector2 mergePosition;
     GameObject mergeMonster;
+    [HideInInspector] public int mergeProgress = 0;
 
+    Vector2 swapPosition;
     Collider2D slotCollider;
     [HideInInspector] public bool insideInventory = false;
 
     void Start()
     {
         startSize = transform.localScale;
-        startHealth = type switch
-        {
-            "Chieftain" => 6,
-            "Warrior" => 3,
-            "Magic" => 3,
-            "Beast" => 3,
-            "Bird" => 3,
-            "Baby" => 1,
-            "Boss" => 3,
-            "Flat" => 3,
-            "Bobble" => 3,
-            "Mounted" => 3,
-            _ => startHealth,
-        };
         currentHealth = startHealth;
         GetComponents();
     }
@@ -95,10 +89,8 @@ public class Monster : UsefulVariableClass
         mergeTimer += Time.deltaTime * Time.deltaTime * Application.targetFrameRate;
         if (mergeProgress == 1)
         {
-            if (type != "Warrior")
-                anim.SetTrigger("attack");
-            if (mergeMonster.GetComponent<Monster>().type != "Warrior")
-                mergeMonster.GetComponent<Animator>().SetTrigger("attack");
+            anim.SetTrigger("attack");
+            mergeMonster.GetComponent<Animator>().SetTrigger("attack");
             mergeMonster.transform.localScale = new Vector2(mergeMonster.transform.localScale.x * -1, mergeMonster.transform.localScale.y);
             hasPlayedSFX = false;
 
@@ -126,15 +118,12 @@ public class Monster : UsefulVariableClass
 
     void OnMouseDown()
     {
-        //if (mergeProgress != 0)
-        //    return;
         CheckMayDrag();
         if (!mayDrag)
             return;
 
         // Visual feedback
-        if (type != "Warrior")
-            anim.SetBool("isMoving", true);
+        anim.SetBool("isMoving", true);
         if (glow != null && gm.enableDragGlow)
             glow.SetActive(true);
         cursor?.UpdateCursor(true);
@@ -142,6 +131,8 @@ public class Monster : UsefulVariableClass
         EnableAllTriggers(true);
 
         transform.localScale = new Vector3(startSize.x * dragSize, startSize.y * dragSize, 1);
+        dragOffset = new Vector3(mousePos.x, mousePos.y, 0) - transform.position;
+        swapPosition = new Vector3(mousePos.x, mousePos.y, 0) - dragOffset;
 
         // Sorting Order
         gm.universalSortingOrderID++;
@@ -153,7 +144,6 @@ public class Monster : UsefulVariableClass
             targetedLimb++;
         }
 
-        dragOffset = new Vector3(mousePos.x, mousePos.y, 0) - transform.position;
     }
 
     void OnMouseDrag()
@@ -175,8 +165,7 @@ public class Monster : UsefulVariableClass
         //    return;
 
         // Visual feedback
-        if (type != "Warrior")
-            anim.SetBool("isMoving", false);
+        anim.SetBool("isMoving", false);
         if (glow != null && gm.enableDragGlow)
             glow.SetActive(false);
         cursor?.UpdateCursor(false);
@@ -273,17 +262,26 @@ public class Monster : UsefulVariableClass
     {
         float lastDistance = Mathf.Infinity;
         GameObject inventorySlot = null;
-        foreach (GameObject newSlot in FindObjectOfType<Inventory>().slots)
+        foreach (GameObject slot in FindObjectOfType<Inventory>().slots)
         {
-            if (Vector3.Distance(newSlot.transform.position, transform.position) < lastDistance)
+            if (Vector3.Distance(slot.transform.position, transform.position) < lastDistance)
             {
-                lastDistance = Vector3.Distance(newSlot.transform.position, transform.position);
-                inventorySlot = newSlot;
+                lastDistance = Vector3.Distance(slot.transform.position, transform.position);
+                inventorySlot = slot;
             }
+        }
+
+        if (inventorySlot.GetComponentInChildren<Monster>()) // swap monster with the one inside occupied slot
+        {
+            Monster swapMonster = inventorySlot.GetComponentInChildren<Monster>();
+            swapMonster.transform.position = swapPosition;
+            swapMonster.transform.localScale = swapMonster.startSize;
+            swapMonster.transform.parent = null;
         }
         transform.position = new Vector2(inventorySlot.transform.position.x + inventoryOffset.x, inventorySlot.transform.position.y + inventoryOffset.y);
         transform.localScale = startSize * inventorySize;
         transform.parent = inventorySlot.transform;
+
         insideInventory = true;
     }
 
@@ -291,7 +289,7 @@ public class Monster : UsefulVariableClass
     {
         if (mergeMonster.GetComponent<Monster>().insideInventory)
         {
-            FindObjectOfType<MonsterSpawner>().CheckMonstersAtScreenEdge();
+            FindObjectOfType<MonsterSpawner>().UpdateMonsterPositions();
             return;
         }
 
@@ -300,14 +298,14 @@ public class Monster : UsefulVariableClass
         mergeTimer = 0;
     }
 
-    public void LoseHealth(int amount = 1)
-    {
-        currentHealth -= amount;
-        if (currentHealth <= 0)
-        {
-            Delete();
-        }
-    }
+    //public void LoseHealth(int amount = 1)
+    //{
+    //    currentHealth -= amount;
+    //    if (currentHealth <= 0)
+    //    {
+    //        Delete();
+    //    }
+    //}
 
     public void Delete()
     {
