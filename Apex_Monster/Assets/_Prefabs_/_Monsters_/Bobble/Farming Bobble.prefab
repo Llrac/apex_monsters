@@ -362,7 +362,7 @@ MonoBehaviour:
   type: Bobble
   battleStyle: Huge
   level: 1
-  attack: 2
+  attack: 1
   startHealth: 12
   currentHealth: 1
   dragSize: 1.25

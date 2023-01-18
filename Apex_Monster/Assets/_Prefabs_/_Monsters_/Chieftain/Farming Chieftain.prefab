@@ -345,7 +345,7 @@ MonoBehaviour:
   type: Chieftain
   battleStyle: Fighter
   level: 1
-  attack: 6
+  attack: 5
   startHealth: 12
   currentHealth: 1
   dragSize: 1.25

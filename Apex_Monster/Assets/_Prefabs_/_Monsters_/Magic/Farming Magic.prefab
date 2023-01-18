@@ -261,7 +261,7 @@ MonoBehaviour:
   type: Magic
   battleStyle: Flying
   level: 1
-  attack: 4
+  attack: 3
   startHealth: 2
   currentHealth: 1
   dragSize: 1.25

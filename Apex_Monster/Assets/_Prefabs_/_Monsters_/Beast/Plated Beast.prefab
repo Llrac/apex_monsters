@@ -514,7 +514,7 @@ MonoBehaviour:
   battleStyle: Huge
   level: 1
   attack: 2
-  startHealth: 10
+  startHealth: 12
   currentHealth: 1
   dragSize: 1.25
   inventoryOffset: {x: 0, y: -0.1}

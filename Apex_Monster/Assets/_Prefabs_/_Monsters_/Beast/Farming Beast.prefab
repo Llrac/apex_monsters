@@ -578,7 +578,7 @@ MonoBehaviour:
   type: Beast
   battleStyle: Huge
   level: 1
-  attack: 2
+  attack: 1
   startHealth: 10
   currentHealth: 1
   dragSize: 1.25

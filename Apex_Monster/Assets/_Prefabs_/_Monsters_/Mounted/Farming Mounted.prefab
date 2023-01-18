@@ -457,7 +457,7 @@ MonoBehaviour:
   type: Mounted
   battleStyle: Flying
   level: 1
-  attack: 3
+  attack: 2
   startHealth: 6
   currentHealth: 1
   dragSize: 1.25

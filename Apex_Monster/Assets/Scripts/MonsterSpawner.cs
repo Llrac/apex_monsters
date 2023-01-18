@@ -130,14 +130,11 @@ public class MonsterSpawner : MonoBehaviour
                     SpawnUndead(0, monster1, monster2);
                     return;
                 }
-                else if (monster1.CompareTag("Farming"))
+                else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike"))
                 {
-                    if (monster2.CompareTag("Plantlike"))
-                    {
-                        SpawnRandomBabies(3, monster2.transform.position.x, monster2.transform.position.y);
-                        monster2.Delete();
-                        return;
-                    }
+                    SpawnRandomBabies(4, monster2.transform.position.x, monster2.transform.position.y, false, true);
+                    monster2.Delete();
+                    return;
                 }
                 break;
 
@@ -154,14 +151,11 @@ public class MonsterSpawner : MonoBehaviour
                     SpawnUndead(1, monster1, monster2);
                     return;
                 }
-                else if (monster1.CompareTag("Farming"))
+                else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike"))
                 {
-                    if (monster2.CompareTag("Plantlike"))
-                    {
-                        SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y);
-                        monster2.Delete();
-                        return;
-                    }
+                    SpawnRandomBabies(3, monster2.transform.position.x, monster2.transform.position.y, false, true);
+                    monster2.Delete();
+                    return;
                 }
                 break;
 
@@ -169,6 +163,12 @@ public class MonsterSpawner : MonoBehaviour
                 if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
                 {
                     SpawnUndead(2, monster1, monster2);
+                    return;
+                }
+                else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
+                {
+                    SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
+                    monster2.Delete();
                     return;
                 }
                 break;
@@ -179,12 +179,24 @@ public class MonsterSpawner : MonoBehaviour
                     SpawnUndead(3, monster1, monster2);
                     return;
                 }
+                else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
+                {
+                    SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
+                    monster2.Delete();
+                    return;
+                }
                 break;
 
             case "Bird":
                 if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
                 {
                     SpawnUndead(4, monster1, monster2);
+                    return;
+                }
+                else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
+                {
+                    SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
+                    monster2.Delete();
                     return;
                 }
                 break;
@@ -234,21 +246,42 @@ public class MonsterSpawner : MonoBehaviour
                 break;
 
             case "Boss":
-                // do nothing
+                if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
+                {
+                    SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
+                    monster2.Delete();
+                    return;
+                }
                 break;
 
             case "Flat":
-                // do nothing
+                if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
+                {
+                    SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
+                    monster2.Delete();
+                    return;
+                }
                 break;
 
             case "Bobble":
-                // do nothing
+                if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
+                {
+                    SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
+                    monster2.Delete();
+                    return;
+                }
                 break;
 
             case "Mounted":
                 if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
                 {
                     SpawnUndead(9, monster1, monster2);
+                    return;
+                }
+                else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
+                {
+                    SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
+                    monster2.Delete();
                     return;
                 }
                 break;
@@ -276,11 +309,18 @@ public class MonsterSpawner : MonoBehaviour
         }
     }
 
-    public void SpawnRandomBabies(int amount = 1, float x = 0, float y = 0, bool randomizeSpawnPosition = false)
+    public void SpawnRandomBabies(int amount = 1, float x = 0, float y = 0, bool randomizeSpawnPosition = false, bool farmed = false)
     {
         for (int i = 0; i < amount; i++)
         {
             GameObject newBaby = Instantiate(gm.babies[Random.Range(0, gm.babies.Length)]);
+            if (farmed && newBaby.CompareTag("Plantlike"))
+            {
+                Destroy(newBaby);
+                i--;
+                continue;
+            }
+            
             if (randomizeSpawnPosition)
             {
                 newBaby.transform.position = new Vector2(Random.Range(-screenSize.x, screenSize.x), Random.Range(-screenSize.y, screenSize.y));
