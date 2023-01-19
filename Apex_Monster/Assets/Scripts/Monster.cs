@@ -80,6 +80,7 @@ public class Monster : UsefulVariableClass
         {
             initialSortingOrderID.Add(targetedLimb);
             initialSortingOrderID[targetedLimb] = spriteRenderer.sortingOrder;
+            spriteRenderer.sortingOrder = gm.universalSortingOrderID + initialSortingOrderID[targetedLimb];
             targetedLimb++;
         }
     }
@@ -143,7 +144,6 @@ public class Monster : UsefulVariableClass
             spriteRenderer.sortingLayerName = "Drag";
             targetedLimb++;
         }
-
     }
 
     void OnMouseDrag()
@@ -194,7 +194,6 @@ public class Monster : UsefulVariableClass
         }
         else
         {
-            transform.parent = null;
             insideInventory = false;
 
             if (mergeMonster != null)
@@ -276,12 +275,9 @@ public class Monster : UsefulVariableClass
             Monster swapMonster = inventorySlot.GetComponentInChildren<Monster>();
             swapMonster.transform.position = swapPosition;
             swapMonster.transform.localScale = swapMonster.startSize;
-            swapMonster.transform.parent = null;
         }
         transform.position = new Vector2(inventorySlot.transform.position.x + inventoryOffset.x, inventorySlot.transform.position.y + inventoryOffset.y);
         transform.localScale = startSize * inventorySize;
-        transform.parent = inventorySlot.transform;
-
         insideInventory = true;
     }
 

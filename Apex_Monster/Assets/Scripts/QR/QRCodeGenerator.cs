@@ -20,15 +20,12 @@ public class QRCodeGenerator : MonoBehaviour
         _storeEncodedTexture = new Texture2D(256, 256);
         _rawImageReceiver.texture = _storeEncodedTexture;
 
-        if (PlayerPrefs.HasKey(QRCODE))
+        if (PlayerPrefs.HasKey(QRCODE) && PlayerPrefs.GetString(QRCODE) != "")
         {
-            if (PlayerPrefs.GetString(QRCODE) != "")
-            {
-                _textInputField.text = QRCODE;
-                EncodeTextToQRCode();
-            }
+            _textInputField.text = PlayerPrefs.GetString(QRCODE);
+            EncodeTextToQRCode();
+            _textInputField.text = "";
         }
-        
     }
 
     // inputField to code
@@ -63,8 +60,5 @@ public class QRCodeGenerator : MonoBehaviour
         _rawImageReceiver.texture = _storeEncodedTexture;
 
         PlayerPrefs.SetString(QRCODE, _textInputField.text);
-        Debug.Log(PlayerPrefs.GetString(QRCODE));
-        Debug.Log(_textInputField.text);
-
     }
 }

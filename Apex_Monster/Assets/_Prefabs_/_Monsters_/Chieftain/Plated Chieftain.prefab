@@ -703,7 +703,7 @@ MonoBehaviour:
   battleStyle: Fighter
   level: 1
   attack: 6
-  startHealth: 14
+  startHealth: 13
   currentHealth: 1
   dragSize: 1.25
   inventoryOffset: {x: 0, y: -0.35}

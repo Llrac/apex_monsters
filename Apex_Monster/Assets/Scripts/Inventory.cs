@@ -4,21 +4,16 @@ using UnityEngine;
 
 public class Inventory : MonoBehaviour
 {
+    public Collider2D slotCollider;
+
     [HideInInspector] public List<GameObject> slots = new();
-    [HideInInspector] public Collider2D slotCollider;
 
     void Start()
     {
-        foreach (Transform child in transform)
+        foreach (Transform child in transform.GetChild(0))
         {
-            if (child.gameObject.GetComponent<SpriteRenderer>() != null)
-            {
+            if (child.name == "Slot")
                 slots.Add(child.gameObject);
-            }
-            else if (child.gameObject.GetComponent<Collider2D>() != null)
-            {
-                slotCollider = child.gameObject.GetComponent<Collider2D>();
-            }
         }
     }
 }

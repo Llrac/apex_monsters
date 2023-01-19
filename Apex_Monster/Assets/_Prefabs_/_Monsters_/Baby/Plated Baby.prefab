@@ -226,7 +226,7 @@ MonoBehaviour:
   battleStyle: Neutral
   level: 1
   attack: 1
-  startHealth: 3
+  startHealth: 2
   currentHealth: 1
   dragSize: 1.25
   inventoryOffset: {x: 0, y: -0.2}

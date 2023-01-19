@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        universalSortingOrderID = 0;
+        universalSortingOrderID = 10;
         Application.targetFrameRate = 60;
     }
 }

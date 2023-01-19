@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MonsterSpawner : MonoBehaviour
 {
     [Header("Particles")]
     [SerializeField] GameObject windGust;
     public GameObject confetti;
-    [SerializeField] GameObject darkConfetti;
+    public GameObject darkConfetti;
 
     [Header("Screen Customizable")]
     [SerializeField] GameObject screenDot;
@@ -50,8 +51,19 @@ public class MonsterSpawner : MonoBehaviour
     void UpdateScreenDots()
     {
         screenDots.Clear();
-        screenSize = new(Screen.width, Screen.height);
+
+        RectTransform safeArea = null;
+        foreach (Image imageObject in FindObjectsOfType<Image>())
+        {
+            if (imageObject.name == "Background")
+            {
+                safeArea = imageObject.gameObject.GetComponent<RectTransform>();
+            }
+        }
+
+        screenSize = new(safeArea.rect.width, safeArea.rect.height);
         screenSize = Camera.main.ScreenToWorldPoint(screenSize);
+        Debug.Log("I'm still an issue!");
 
         screenDots.Add(Instantiate(screenDot, new Vector2(-screenSize.x, -screenSize.y), Quaternion.identity, transform));
         screenDots.Add(Instantiate(screenDot, new Vector2(screenSize.x, -screenSize.y), Quaternion.identity, transform));
@@ -113,8 +125,8 @@ public class MonsterSpawner : MonoBehaviour
 
     public void Merge(Monster monster1, Monster monster2, bool lastTry = false)
     {
-        if (monster1.CompareTag("Porcine") && monster1.startSize != new Vector3(1, 1, 1) && monster2.type != "Chieftain" && monster2.type != "Baby" ||
-            monster2.CompareTag("Porcine") && monster1.startSize != new Vector3(1, 1, 1) && monster1.type != "Chieftain" && monster1.type != "Baby")
+        if ((monster1.CompareTag("Porcine") && monster1.level != 1 && monster2.level == 1 && monster2.type != "Chieftain" && monster2.type != "Baby") ||
+            (monster2.CompareTag("Porcine") && monster2.level != 2 && monster1.level == 1 && monster1.type != "Chieftain" && monster1.type != "Baby"))
         {
             SpawnBoss(monster2, monster2.transform.position.x, monster2.transform.position.y);
             monster1.Delete();
@@ -202,14 +214,21 @@ public class MonsterSpawner : MonoBehaviour
                 break;
 
             case "Baby":
-                if (monster1.CompareTag("Sinister") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize ||
-                    monster2.CompareTag("Sinister") && !monster1.CompareTag("Undead") && monster1.type == "Baby" && monster1.startSize == monster2.startSize)
+                if (monster2.CompareTag("Sinister") && !monster1.CompareTag("Undead") && monster1.type == "Baby" && monster1.startSize == monster2.startSize)
+                {
+                    SpawnWarrior(monster1, monster2.transform.position.x, monster2.transform.position.y);
+                    monster1.Delete();
+                    monster2.Delete();
+                    return;
+                }
+                else if (monster1.CompareTag("Sinister") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
                 {
                     SpawnWarrior(monster2, monster2.transform.position.x, monster2.transform.position.y);
                     monster1.Delete();
                     monster2.Delete();
                     return;
                 }
+
                 else if (monster1.CompareTag("Porcine") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
                 {
                     if (monster2.CompareTag("Porcine") && monster1.startSize == monster2.startSize)
@@ -222,9 +241,16 @@ public class MonsterSpawner : MonoBehaviour
                     monster2.Delete();
                     return;
                 }
-                else if (monster1.CompareTag("Plated") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
+                else if (monster1.CompareTag("Robotic") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
                 {
-                    SpawnMounted(monster2, monster2.transform.position.x, monster2.transform.position.y);
+                    SpawnBobble(monster2, monster2.transform.position.x, monster2.transform.position.y);
+                    monster1.Delete();
+                    monster2.Delete();
+                    return;
+                }
+                else if (monster1.CompareTag("Reptilian") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
+                {
+                    SpawnFlat(monster2, monster2.transform.position.x, monster2.transform.position.y);
                     monster1.Delete();
                     monster2.Delete();
                     return;
@@ -246,7 +272,12 @@ public class MonsterSpawner : MonoBehaviour
                 break;
 
             case "Boss":
-                if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
+                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
+                {
+                    SpawnUndead(6, monster1, monster2);
+                    return;
+                }
+                else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
                 {
                     SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
                     monster2.Delete();
@@ -255,7 +286,12 @@ public class MonsterSpawner : MonoBehaviour
                 break;
 
             case "Flat":
-                if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
+                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
+                {
+                    SpawnUndead(7, monster1, monster2);
+                    return;
+                }
+                else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
                 {
                     SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
                     monster2.Delete();
@@ -264,7 +300,17 @@ public class MonsterSpawner : MonoBehaviour
                 break;
 
             case "Bobble":
-                if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
+                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
+                {
+                    SpawnUndead(8, monster1, monster2);
+                    return;
+                }
+                else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
+                {
+                    MonsterLevelUp(monster1, monster2, true);
+                    return;
+                }
+                else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
                 {
                     SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
                     monster2.Delete();
@@ -291,7 +337,7 @@ public class MonsterSpawner : MonoBehaviour
                 break;
         }
 
-        if (monster1.type == monster2.type && monster1.CompareTag(monster2.tag) && monster1.startSize == monster2.startSize)
+        if (monster1.type == monster2.type && monster1.CompareTag(monster2.tag) && monster1.startSize == monster2.startSize && monster1.type != "Baby")
         {
             MonsterLevelUp(monster1, monster2);
             return;
@@ -303,6 +349,14 @@ public class MonsterSpawner : MonoBehaviour
         }
         else
         {
+            if ((monster1.CompareTag("Plated") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize) ||
+                (monster2.CompareTag("Plated") && !monster1.CompareTag("Undead") && monster1.type == "Baby" && monster1.startSize == monster2.startSize))
+            {
+                SpawnMounted(monster2, monster2.transform.position.x, monster2.transform.position.y);
+                monster1.Delete();
+                monster2.Delete();
+                return;
+            }
             monster1.transform.localScale = monster1.startSize;
             monster2.transform.localScale = monster2.startSize;
             UpdateMonsterPositions();
@@ -333,33 +387,36 @@ public class MonsterSpawner : MonoBehaviour
         }
     }
 
-    void MonsterLevelUp(Monster monster1, Monster monster2)
+    void MonsterLevelUp(Monster monster1, Monster monster2, bool roboticUpgrade = false)
     {
         monster2.Delete();
-        monster1.transform.localScale = new Vector3(monster1.startSize.x + 0.5f, monster1.startSize.y + 0.5f, monster1.startSize.z + 0.5f);
+        if (roboticUpgrade)
+        {
+            monster1.transform.localScale = new Vector3(monster1.startSize.x + 0.25f, monster1.startSize.y + 0.25f, monster1.startSize.z + 0.25f);
+            monster1.level++;
+            monster1.inventorySize *= 0.9375f;
+        }
+        else
+        {
+            monster1.transform.localScale = new Vector3(monster1.startSize.x + 0.5f, monster1.startSize.y + 0.5f, monster1.startSize.z + 0.5f);
+            monster1.level++;
+            monster1.inventorySize *= 0.75f;
+        }
         monster1.startSize = monster1.transform.localScale;
-        monster1.level++;
-        monster1.inventorySize *= 0.75f;
         CreateConfetti(monster1.gameObject, monster2.gameObject);
         UpdateMonsterPositions();
     }
 
     void CreateConfetti(GameObject monster, GameObject infectorMonster = null)
     {
-        GameObject newConfetti;
         if (monster.CompareTag("Undead") && infectorMonster != null && infectorMonster.CompareTag("Undead"))
         {
-            FindObjectOfType<AudioManager>().celebrationAS.pitch = 1.25f;
-            newConfetti = Instantiate(darkConfetti);
+            FindObjectOfType<AudioManager>().PlayCelebrate(monster.transform.position.x, monster.transform.position.y, true);
         }
         else
         {
-            FindObjectOfType<AudioManager>().celebrationAS.pitch = 1.5f;
-            newConfetti = Instantiate(confetti);
+            FindObjectOfType<AudioManager>().PlayCelebrate(monster.transform.position.x, monster.transform.position.y);
         }
-        FindObjectOfType<AudioManager>().celebrationAS.PlayOneShot(FindObjectOfType<AudioManager>().celebrate);
-        newConfetti.transform.position = monster.transform.position;
-        Destroy(newConfetti, 2);
     }
 
     #region Spawn
@@ -492,6 +549,50 @@ public class MonsterSpawner : MonoBehaviour
         };
         newBoss.transform.position = new Vector2(x, y);
         CreateConfetti(newBoss, newBoss);
+        UpdateMonsterPositions();
+    }
+
+    public void SpawnFlat(Monster monster, float x = 0, float y = 0)
+    {
+        GameObject newFlat;
+        newFlat = monster.tag switch
+        {
+            "Hypnotic" => Instantiate(gm.flats[0]),
+            "Robotic" => Instantiate(gm.flats[1]),
+            "Reptilian" => Instantiate(gm.flats[2]),
+            "Undead" => Instantiate(gm.flats[3]),
+            "Porcine" => Instantiate(gm.flats[4]),
+            "Plated" => Instantiate(gm.flats[5]),
+            "Cloudy" => Instantiate(gm.flats[6]),
+            "Farming" => Instantiate(gm.flats[7]),
+            "Plantlike" => Instantiate(gm.flats[8]),
+            "Sinister" => Instantiate(gm.flats[9]),
+            _ => Instantiate(gm.flats[0]),
+        };
+        newFlat.transform.position = new Vector2(x, y);
+        CreateConfetti(newFlat, newFlat);
+        UpdateMonsterPositions();
+    }
+
+    public void SpawnBobble(Monster monster, float x = 0, float y = 0)
+    {
+        GameObject newBobble;
+        newBobble = monster.tag switch
+        {
+            "Hypnotic" => Instantiate(gm.bobbles[0]),
+            "Robotic" => Instantiate(gm.bobbles[1]),
+            "Reptilian" => Instantiate(gm.bobbles[2]),
+            "Undead" => Instantiate(gm.bobbles[3]),
+            "Porcine" => Instantiate(gm.bobbles[4]),
+            "Plated" => Instantiate(gm.bobbles[5]),
+            "Cloudy" => Instantiate(gm.bobbles[6]),
+            "Farming" => Instantiate(gm.bobbles[7]),
+            "Plantlike" => Instantiate(gm.bobbles[8]),
+            "Sinister" => Instantiate(gm.bobbles[9]),
+            _ => Instantiate(gm.bobbles[0]),
+        };
+        newBobble.transform.position = new Vector2(x, y);
+        CreateConfetti(newBobble, newBobble);
         UpdateMonsterPositions();
     }
 
