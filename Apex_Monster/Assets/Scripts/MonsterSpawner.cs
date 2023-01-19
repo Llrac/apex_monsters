@@ -63,8 +63,8 @@ public class MonsterSpawner : MonoBehaviour
 
         screenSize = new(safeArea.rect.width, safeArea.rect.height);
         screenSize = Camera.main.ScreenToWorldPoint(screenSize);
-        Debug.Log("I'm still an issue!");
 
+        // TODO: Dots should spawn in SafeArea's corners and screenOffset from SafeArea's edges.
         screenDots.Add(Instantiate(screenDot, new Vector2(-screenSize.x, -screenSize.y), Quaternion.identity, transform));
         screenDots.Add(Instantiate(screenDot, new Vector2(screenSize.x, -screenSize.y), Quaternion.identity, transform));
         screenDots.Add(Instantiate(screenDot, new Vector2(-screenSize.x, screenSize.y), Quaternion.identity, transform));
@@ -144,7 +144,7 @@ public class MonsterSpawner : MonoBehaviour
                 }
                 else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike"))
                 {
-                    SpawnRandomBabies(4, monster2.transform.position.x, monster2.transform.position.y, false, true);
+                    SpawnRandomBabies(3, monster2.transform.position.x, monster2.transform.position.y, false, true);
                     monster2.Delete();
                     return;
                 }
@@ -165,7 +165,7 @@ public class MonsterSpawner : MonoBehaviour
                 }
                 else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike"))
                 {
-                    SpawnRandomBabies(3, monster2.transform.position.x, monster2.transform.position.y, false, true);
+                    SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
                     monster2.Delete();
                     return;
                 }
@@ -179,7 +179,7 @@ public class MonsterSpawner : MonoBehaviour
                 }
                 else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
                 {
-                    SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
+                    SpawnRandomBabies(1, monster2.transform.position.x, monster2.transform.position.y, false, true);
                     monster2.Delete();
                     return;
                 }
@@ -193,7 +193,7 @@ public class MonsterSpawner : MonoBehaviour
                 }
                 else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
                 {
-                    SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
+                    SpawnRandomBabies(1, monster2.transform.position.x, monster2.transform.position.y, false, true);
                     monster2.Delete();
                     return;
                 }
@@ -207,7 +207,7 @@ public class MonsterSpawner : MonoBehaviour
                 }
                 else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
                 {
-                    SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
+                    SpawnRandomBabies(1, monster2.transform.position.x, monster2.transform.position.y, false, true);
                     monster2.Delete();
                     return;
                 }
@@ -279,7 +279,7 @@ public class MonsterSpawner : MonoBehaviour
                 }
                 else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
                 {
-                    SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
+                    SpawnRandomBabies(1, monster2.transform.position.x, monster2.transform.position.y, false, true);
                     monster2.Delete();
                     return;
                 }
@@ -293,7 +293,7 @@ public class MonsterSpawner : MonoBehaviour
                 }
                 else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
                 {
-                    SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
+                    SpawnRandomBabies(1, monster2.transform.position.x, monster2.transform.position.y, false, true);
                     monster2.Delete();
                     return;
                 }
@@ -312,7 +312,7 @@ public class MonsterSpawner : MonoBehaviour
                 }
                 else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
                 {
-                    SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
+                    SpawnRandomBabies(1, monster2.transform.position.x, monster2.transform.position.y, false, true);
                     monster2.Delete();
                     return;
                 }
@@ -326,7 +326,7 @@ public class MonsterSpawner : MonoBehaviour
                 }
                 else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
                 {
-                    SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
+                    SpawnRandomBabies(1, monster2.transform.position.x, monster2.transform.position.y, false, true);
                     monster2.Delete();
                     return;
                 }
@@ -403,11 +403,11 @@ public class MonsterSpawner : MonoBehaviour
             monster1.inventorySize *= 0.75f;
         }
         monster1.startSize = monster1.transform.localScale;
-        CreateConfetti(monster1.gameObject, monster2.gameObject);
+        Celebrate(monster1.gameObject, monster2.gameObject);
         UpdateMonsterPositions();
     }
 
-    void CreateConfetti(GameObject monster, GameObject infectorMonster = null)
+    void Celebrate(GameObject monster, GameObject infectorMonster = null)
     {
         if (monster.CompareTag("Undead") && infectorMonster != null && infectorMonster.CompareTag("Undead"))
         {
@@ -438,7 +438,7 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.chieftains[0]),
         };
         newChieftain.transform.position = new Vector2(x, y);
-        CreateConfetti(newChieftain, newChieftain);
+        Celebrate(newChieftain, newChieftain);
         UpdateMonsterPositions();
     }
 
@@ -460,7 +460,7 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.warriors[0]),
         };
         newWarrior.transform.position = new Vector2(x, y);
-        CreateConfetti(newWarrior, newWarrior);
+        Celebrate(newWarrior, newWarrior);
         UpdateMonsterPositions();
     }
 
@@ -482,7 +482,7 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.magics[0]),
         };
         newMagic.transform.position = new Vector2(x, y);
-        CreateConfetti(newMagic, newMagic);
+        Celebrate(newMagic, newMagic);
         UpdateMonsterPositions();
     }
 
@@ -504,7 +504,7 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.beasts[0]),
         };
         newBeast.transform.position = new Vector2(x, y);
-        CreateConfetti(newBeast, newBeast);
+        Celebrate(newBeast, newBeast);
         UpdateMonsterPositions();
     }
 
@@ -526,7 +526,7 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.birds[0]),
         };
         newBird.transform.position = new Vector2(x, y);
-        CreateConfetti(newBird, newBird);
+        Celebrate(newBird, newBird);
         UpdateMonsterPositions();
     }
 
@@ -548,7 +548,7 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.bosses[0]),
         };
         newBoss.transform.position = new Vector2(x, y);
-        CreateConfetti(newBoss, newBoss);
+        Celebrate(newBoss, newBoss);
         UpdateMonsterPositions();
     }
 
@@ -570,7 +570,7 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.flats[0]),
         };
         newFlat.transform.position = new Vector2(x, y);
-        CreateConfetti(newFlat, newFlat);
+        Celebrate(newFlat, newFlat);
         UpdateMonsterPositions();
     }
 
@@ -592,7 +592,7 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.bobbles[0]),
         };
         newBobble.transform.position = new Vector2(x, y);
-        CreateConfetti(newBobble, newBobble);
+        Celebrate(newBobble, newBobble);
         UpdateMonsterPositions();
     }
 
@@ -614,7 +614,7 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.mounted[0]),
         };
         newMounted.transform.position = new Vector2(x, y);
-        CreateConfetti(newMounted, newMounted);
+        Celebrate(newMounted, newMounted);
         UpdateMonsterPositions();
     }
 
@@ -641,7 +641,7 @@ public class MonsterSpawner : MonoBehaviour
         newUndead.GetComponent<Monster>().startSize = monster1.startSize;
         newUndead.transform.localScale = newUndead.GetComponent<Monster>().startSize;
         newUndead.transform.position = new Vector2(monster2.transform.position.x, monster2.transform.position.y);
-        CreateConfetti(newUndead, monster2.gameObject);
+        Celebrate(newUndead, monster2.gameObject);
         UpdateMonsterPositions();
     }
     #endregion

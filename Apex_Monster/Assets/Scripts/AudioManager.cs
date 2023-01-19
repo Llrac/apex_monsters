@@ -113,7 +113,7 @@ public class AudioManager : MonoBehaviour
         }
         else
         {
-            celebrationAS.pitch = 1.5f;
+            celebrationAS.pitch = 1.75f;
             newConfetti = Instantiate(FindObjectOfType<MonsterSpawner>().confetti);
         }
         celebrationAS.PlayOneShot(celebrate);

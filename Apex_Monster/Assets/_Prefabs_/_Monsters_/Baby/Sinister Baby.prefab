@@ -227,10 +227,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: Baby
   battleStyle: Neutral
-  level: 1
+  monsterID: 9
   attack: 1
   startHealth: 1
   currentHealth: 1
+  level: 1
   dragSize: 1.25
   inventoryOffset: {x: 0.05, y: -0.25}
   inventorySize: 1

@@ -387,10 +387,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: Bobble
   battleStyle: Huge
-  level: 1
+  monsterID: 38
   attack: 2
   startHealth: 12
   currentHealth: 1
+  level: 1
   dragSize: 1.25
   inventoryOffset: {x: 0, y: -0.3}
   inventorySize: 0.55

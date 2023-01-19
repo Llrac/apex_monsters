@@ -260,10 +260,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: Boss
   battleStyle: Huge
-  level: 1
+  monsterID: 44
   attack: 5
   startHealth: 16
   currentHealth: 1
+  level: 1
   dragSize: 1.25
   inventoryOffset: {x: 0, y: -0.2}
   inventorySize: 0.45

@@ -90,10 +90,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: Chieftain
   battleStyle: Fighter
-  level: 1
+  monsterID: 56
   attack: 6
   startHealth: 12
   currentHealth: 1
+  level: 1
   dragSize: 1.25
   inventoryOffset: {x: 0, y: -0.45}
   inventorySize: 0.4

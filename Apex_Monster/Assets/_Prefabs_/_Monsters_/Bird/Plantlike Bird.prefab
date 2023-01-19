@@ -315,10 +315,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: Bird
   battleStyle: Neutral
-  level: 1
+  monsterID: 24
   attack: 3
   startHealth: 6
   currentHealth: 1
+  level: 1
   dragSize: 1.25
   inventoryOffset: {x: -0.1, y: 0}
   inventorySize: 0.5

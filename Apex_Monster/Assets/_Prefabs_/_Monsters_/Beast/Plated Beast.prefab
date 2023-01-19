@@ -512,10 +512,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: Beast
   battleStyle: Huge
-  level: 1
+  monsterID: 15
   attack: 2
   startHealth: 11
   currentHealth: 1
+  level: 1
   dragSize: 1.25
   inventoryOffset: {x: 0, y: -0.1}
   inventorySize: 0.5

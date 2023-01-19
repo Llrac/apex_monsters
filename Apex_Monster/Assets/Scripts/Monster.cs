@@ -4,7 +4,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 
-public class Monster : UsefulVariableClass
+public class Monster : MonoBehaviour
 {
     [Tooltip("The type of monster. There are 10 unique types. " +
         "Chieftain, Warrior, Magic, Beast, Bird, Baby, Boss, Flat, Bobble, Mounted")]
@@ -14,12 +14,13 @@ public class Monster : UsefulVariableClass
         "Flat & Warrior & Chieftain = Fighter, Magic & Mounted = Flying, Bobble & Beast & Boss = Huge, Baby & Bird = Neutral")]
     public string battleStyle = "";
 
-    [HideInInspector] public int level = 1;
+    public int monsterID = 0;
 
     [Header("Stats")]
-    [Range(1, 8)] public int attack = 1;
-    [Range(1, 16)] public int startHealth = 1;
+    [Range(1, 7)] public int attack = 1;
+    [Range(1, 17)] public int startHealth = 1;
     [HideInInspector] public int currentHealth = 1;
+    [HideInInspector] public int level = 1;
 
     [Header("Size")]
     [Range(1f, 1.25f)] public float dragSize = 1.25f;
@@ -188,6 +189,8 @@ public class Monster : UsefulVariableClass
             gameObject.transform.localScale = new Vector3(startSize.x, startSize.y, startSize.z);
         }
 
+        if (FindObjectOfType<Inventory>() == null) { Debug.Log("missing inventory"); return; }
+
         if (slotCollider != null)
         {
             InsertIntoNearbyInventorySlot();
@@ -232,8 +235,8 @@ public class Monster : UsefulVariableClass
     void CheckMayDrag()
     {
         mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        if (mousePos.x < -Width / 2 || mousePos.x > Width / 2 ||
-            mousePos.y < -Height / 2 || mousePos.y > Height / 2)
+        if (mousePos.x < -Camera.main.orthographicSize * Camera.main.aspect || mousePos.x > Camera.main.orthographicSize * Camera.main.aspect * 2 ||
+            mousePos.y < -Camera.main.orthographicSize || mousePos.y > Camera.main.orthographicSize * 2)
         {
             mayDrag = false;
         }
@@ -253,8 +256,8 @@ public class Monster : UsefulVariableClass
                 collider.isTrigger = enable;
             }
         }
-
-        FindObjectOfType<Inventory>().slotCollider.enabled = enable;
+        if (FindObjectOfType<Inventory>() != null)
+            FindObjectOfType<Inventory>().slotCollider.enabled = enable;
     }
 
     void InsertIntoNearbyInventorySlot()

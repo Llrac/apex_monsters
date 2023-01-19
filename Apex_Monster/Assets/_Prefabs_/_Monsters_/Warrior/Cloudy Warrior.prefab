@@ -369,10 +369,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: Warrior
   battleStyle: Fighter
-  level: 1
+  monsterID: 91
   attack: 3
   startHealth: 6
   currentHealth: 1
+  level: 1
   dragSize: 1.25
   inventoryOffset: {x: 0, y: -0.2}
   inventorySize: 0.5
