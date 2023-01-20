@@ -367,7 +367,7 @@ MonoBehaviour:
   battleStyle: Huge
   monsterID: 35
   attack: 2
-  startHealth: 13
+  startHealth: 12
   currentHealth: 1
   level: 1
   dragSize: 1.25

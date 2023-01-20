@@ -578,8 +578,8 @@ MonoBehaviour:
   type: Beast
   battleStyle: Huge
   monsterID: 12
-  attack: 1
-  startHealth: 10
+  attack: 2
+  startHealth: 9
   currentHealth: 1
   level: 1
   dragSize: 1.25

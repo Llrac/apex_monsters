@@ -261,8 +261,8 @@ MonoBehaviour:
   type: Magic
   battleStyle: Flying
   monsterID: 72
-  attack: 3
-  startHealth: 2
+  attack: 4
+  startHealth: 1
   currentHealth: 1
   level: 1
   dragSize: 1.25

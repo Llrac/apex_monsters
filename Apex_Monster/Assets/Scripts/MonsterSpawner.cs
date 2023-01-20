@@ -133,6 +133,14 @@ public class MonsterSpawner : MonoBehaviour
             monster2.Delete();
             return;
         }
+        else if ((monster1.CompareTag("Cloudy") && monster1.level != 1 && monster2.level == 1 && monster2.type != "Chieftain" && monster2.type != "Baby") ||
+            (monster2.CompareTag("Cloudy") && monster2.level != 2 && monster1.level == 1 && monster1.type != "Chieftain" && monster1.type != "Baby"))
+        {
+            SpawnMounted(monster2, monster2.transform.position.x, monster2.transform.position.y);
+            monster1.Delete();
+            monster2.Delete();
+            return;
+        }
 
         switch (monster1.type)
         {
@@ -140,6 +148,11 @@ public class MonsterSpawner : MonoBehaviour
                 if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
                 {
                     SpawnUndead(0, monster1, monster2);
+                    return;
+                }
+                else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
+                {
+                    MonsterLevelUp(monster1, monster2, true);
                     return;
                 }
                 else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike"))
@@ -163,6 +176,11 @@ public class MonsterSpawner : MonoBehaviour
                     SpawnUndead(1, monster1, monster2);
                     return;
                 }
+                else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
+                {
+                    MonsterLevelUp(monster1, monster2, true);
+                    return;
+                }
                 else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike"))
                 {
                     SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
@@ -175,6 +193,11 @@ public class MonsterSpawner : MonoBehaviour
                 if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
                 {
                     SpawnUndead(2, monster1, monster2);
+                    return;
+                }
+                else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
+                {
+                    MonsterLevelUp(monster1, monster2, true);
                     return;
                 }
                 else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
@@ -191,6 +214,11 @@ public class MonsterSpawner : MonoBehaviour
                     SpawnUndead(3, monster1, monster2);
                     return;
                 }
+                else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
+                {
+                    MonsterLevelUp(monster1, monster2, true);
+                    return;
+                }
                 else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
                 {
                     SpawnRandomBabies(1, monster2.transform.position.x, monster2.transform.position.y, false, true);
@@ -203,6 +231,11 @@ public class MonsterSpawner : MonoBehaviour
                 if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
                 {
                     SpawnUndead(4, monster1, monster2);
+                    return;
+                }
+                else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
+                {
+                    MonsterLevelUp(monster1, monster2, true);
                     return;
                 }
                 else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
@@ -257,6 +290,11 @@ public class MonsterSpawner : MonoBehaviour
                 }
                 else if (monster1.CompareTag("Cloudy") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
                 {
+                    if (monster2.CompareTag("Cloudy") && monster1.startSize == monster2.startSize)
+                    {
+                        MonsterLevelUp(monster1, monster2);
+                        return;
+                    }
                     SpawnMagic(monster2, monster2.transform.position.x, monster2.transform.position.y);
                     monster1.Delete();
                     monster2.Delete();
@@ -277,6 +315,11 @@ public class MonsterSpawner : MonoBehaviour
                     SpawnUndead(6, monster1, monster2);
                     return;
                 }
+                else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
+                {
+                    MonsterLevelUp(monster1, monster2, true);
+                    return;
+                }
                 else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
                 {
                     SpawnRandomBabies(1, monster2.transform.position.x, monster2.transform.position.y, false, true);
@@ -289,6 +332,11 @@ public class MonsterSpawner : MonoBehaviour
                 if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
                 {
                     SpawnUndead(7, monster1, monster2);
+                    return;
+                }
+                else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
+                {
+                    MonsterLevelUp(monster1, monster2, true);
                     return;
                 }
                 else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
@@ -324,6 +372,11 @@ public class MonsterSpawner : MonoBehaviour
                     SpawnUndead(9, monster1, monster2);
                     return;
                 }
+                else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
+                {
+                    MonsterLevelUp(monster1, monster2, true);
+                    return;
+                }
                 else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
                 {
                     SpawnRandomBabies(1, monster2.transform.position.x, monster2.transform.position.y, false, true);
@@ -346,20 +399,6 @@ public class MonsterSpawner : MonoBehaviour
         if (!lastTry) // if there were no merges, try the other way and see if that merged anything
         {
             Merge(monster2, monster1, true);
-        }
-        else
-        {
-            if ((monster1.CompareTag("Plated") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize) ||
-                (monster2.CompareTag("Plated") && !monster1.CompareTag("Undead") && monster1.type == "Baby" && monster1.startSize == monster2.startSize))
-            {
-                SpawnMounted(monster2, monster2.transform.position.x, monster2.transform.position.y);
-                monster1.Delete();
-                monster2.Delete();
-                return;
-            }
-            monster1.transform.localScale = monster1.startSize;
-            monster2.transform.localScale = monster2.startSize;
-            UpdateMonsterPositions();
         }
     }
 
@@ -392,23 +431,28 @@ public class MonsterSpawner : MonoBehaviour
         monster2.Delete();
         if (roboticUpgrade)
         {
-            monster1.transform.localScale = new Vector3(monster1.startSize.x + 0.25f, monster1.startSize.y + 0.25f, monster1.startSize.z + 0.25f);
-            monster1.level++;
+            monster1.startSize = new Vector3(monster1.startSize.x + 0.25f, monster1.startSize.y + 0.25f, monster1.startSize.z + 0.25f);
             monster1.inventorySize *= 0.9375f;
         }
         else
         {
-            monster1.transform.localScale = new Vector3(monster1.startSize.x + 0.5f, monster1.startSize.y + 0.5f, monster1.startSize.z + 0.5f);
+            monster1.startSize = new Vector3(monster1.startSize.x + 0.5f, monster1.startSize.y + 0.5f, monster1.startSize.z + 0.5f);
             monster1.level++;
             monster1.inventorySize *= 0.75f;
         }
-        monster1.startSize = monster1.transform.localScale;
+        monster1.attack += monster2.attack;
+        monster1.startHealth += monster2.startHealth;
+        monster1.currentHealth = monster1.startHealth;
+
+        monster1.transform.localScale = monster1.startSize;
         Celebrate(monster1.gameObject, monster2.gameObject);
         UpdateMonsterPositions();
     }
 
     void Celebrate(GameObject monster, GameObject infectorMonster = null)
     {
+        Debug.Log(monster.GetComponent<Monster>().attack + " " + monster.GetComponent<Monster>().startHealth);
+
         if (monster.CompareTag("Undead") && infectorMonster != null && infectorMonster.CompareTag("Undead"))
         {
             FindObjectOfType<AudioManager>().PlayCelebrate(monster.transform.position.x, monster.transform.position.y, true);
@@ -638,6 +682,8 @@ public class MonsterSpawner : MonoBehaviour
             9 => Instantiate(gm.mounted[3]),
             _ => Instantiate(gm.chieftains[3]),
         };
+        newUndead.GetComponent<Monster>().attack = monster1.attack + 1;
+        newUndead.GetComponent<Monster>().startHealth = monster1.startHealth + 1;
         newUndead.GetComponent<Monster>().startSize = monster1.startSize;
         newUndead.transform.localScale = newUndead.GetComponent<Monster>().startSize;
         newUndead.transform.position = new Vector2(monster2.transform.position.x, monster2.transform.position.y);

@@ -309,8 +309,8 @@ MonoBehaviour:
   type: Bird
   battleStyle: Neutral
   monsterID: 22
-  attack: 2
-  startHealth: 6
+  attack: 3
+  startHealth: 5
   currentHealth: 1
   level: 1
   dragSize: 1.25

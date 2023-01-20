@@ -231,7 +231,7 @@ MonoBehaviour:
   battleStyle: Fighter
   monsterID: 63
   attack: 3
-  startHealth: 8
+  startHealth: 7
   currentHealth: 1
   level: 1
   dragSize: 1.25

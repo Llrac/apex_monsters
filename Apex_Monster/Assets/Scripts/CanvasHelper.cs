@@ -20,8 +20,12 @@ public class CanvasHelper : MonoBehaviour
     private RectTransform rectTransform;
     private RectTransform safeAreaTransform;
 
+    private Vector2 resolution;
+
     void Awake()
     {
+        resolution = new Vector2(Screen.width, Screen.height);
+
         if (!helpers.Contains(this))
             helpers.Add(this);
 
@@ -56,9 +60,16 @@ public class CanvasHelper : MonoBehaviour
 
         if (Screen.width != lastResolution.x || Screen.height != lastResolution.y)
             ResolutionChanged();
+
+        if (resolution.x != Screen.width || resolution.y != Screen.height)
+        {
+            Debug.Log("changed screen size");
+            ApplySafeArea();
+            resolution = new Vector2(Screen.width, Screen.height);
+        }
     }
 
-    void ApplySafeArea()
+    public void ApplySafeArea()
     {
         if (safeAreaTransform == null)
             return;

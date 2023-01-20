@@ -42,6 +42,7 @@ public class SceneNavigator : MonoBehaviour
             if (monster.insideInventory)
             {
                 monster.transform.SetParent(gameObject.transform);
+                monster.transform.localScale = monster.startSize;
                 yourMonsters.Add(monster.gameObject);
             }
         }

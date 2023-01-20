@@ -457,8 +457,8 @@ MonoBehaviour:
   type: Mounted
   battleStyle: Flying
   monsterID: 82
-  attack: 2
-  startHealth: 6
+  attack: 8
+  startHealth: 3
   currentHealth: 1
   level: 1
   dragSize: 1.25

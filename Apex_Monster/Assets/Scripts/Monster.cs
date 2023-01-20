@@ -17,7 +17,7 @@ public class Monster : MonoBehaviour
     public int monsterID = 0;
 
     [Header("Stats")]
-    [Range(1, 7)] public int attack = 1;
+    [Range(1, 9)] public int attack = 1;
     [Range(1, 17)] public int startHealth = 1;
     [HideInInspector] public int currentHealth = 1;
     [HideInInspector] public int level = 1;
@@ -47,12 +47,15 @@ public class Monster : MonoBehaviour
 
     Vector2 swapPosition;
     Collider2D slotCollider;
+    GameObject inventorySlot = null;
+    float startZPosition;
     [HideInInspector] public bool insideInventory = false;
 
     void Start()
     {
         startSize = transform.localScale;
         currentHealth = startHealth;
+        //startZPosition = 0;
         GetComponents();
     }
 
@@ -134,7 +137,7 @@ public class Monster : MonoBehaviour
 
         transform.localScale = new Vector3(startSize.x * dragSize, startSize.y * dragSize, 1);
         dragOffset = new Vector3(mousePos.x, mousePos.y, 0) - transform.position;
-        swapPosition = new Vector3(mousePos.x, mousePos.y, 0) - dragOffset;
+        //swapPosition = new Vector3(mousePos.x, mousePos.y, 0) - dragOffset;
 
         // Sorting Order
         gm.universalSortingOrderID++;
@@ -149,22 +152,15 @@ public class Monster : MonoBehaviour
 
     void OnMouseDrag()
     {
-        //if (mergeProgress != 0)
-        //    return;
-
         CheckMayDrag();
         if (!mayDrag)
             return;
 
-        // Drag mechanics
         transform.position = new Vector3(mousePos.x, mousePos.y, 0) - dragOffset;
     }
 
     void OnMouseUp()
     {
-        //if (mergeProgress != 0)
-        //    return;
-
         // Visual feedback
         anim.SetBool("isMoving", false);
         if (glow != null && gm.enableDragGlow)
@@ -189,7 +185,7 @@ public class Monster : MonoBehaviour
             gameObject.transform.localScale = new Vector3(startSize.x, startSize.y, startSize.z);
         }
 
-        if (FindObjectOfType<Inventory>() == null) { Debug.Log("missing inventory"); return; }
+        if (FindObjectOfType<Inventory>() == null) { Debug.LogWarning("missing inventory"); return; }
 
         if (slotCollider != null)
         {
@@ -198,7 +194,10 @@ public class Monster : MonoBehaviour
         else
         {
             insideInventory = false;
-
+            //if (insideInventory)
+            //{
+            //    inventorySlot.transform.position = new Vector3(inventorySlot.transform.position.x, inventorySlot.transform.position.y, startZPosition);
+            //}
             if (mergeMonster != null)
             {
                 BeginMerge();
@@ -210,6 +209,8 @@ public class Monster : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
+        if (!FindObjectOfType<Inventory>()) { return; }
+
         if (collision == FindObjectOfType<Inventory>().slotCollider)
         {
             slotCollider = collision;
@@ -222,11 +223,13 @@ public class Monster : MonoBehaviour
 
     void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision == FindObjectOfType<Inventory>().slotCollider)
+        if (!FindObjectOfType<Inventory>()) { return; }
+
+        if (collision == FindObjectOfType<Inventory>().slotCollider )
         {
             slotCollider = null;
         }
-        else if (mergeProgress == 0)
+        else
         {
             mergeMonster = null;
         }
@@ -235,8 +238,9 @@ public class Monster : MonoBehaviour
     void CheckMayDrag()
     {
         mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        if (mousePos.x < -Camera.main.orthographicSize * Camera.main.aspect || mousePos.x > Camera.main.orthographicSize * Camera.main.aspect * 2 ||
-            mousePos.y < -Camera.main.orthographicSize || mousePos.y > Camera.main.orthographicSize * 2)
+        if (mousePos.x < -Camera.main.orthographicSize * Camera.main.aspect || mousePos.x > Camera.main.orthographicSize * Camera.main.aspect ||
+            mousePos.y < -Camera.main.orthographicSize || mousePos.y > Camera.main.orthographicSize ||
+            UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "BattleMonsters")
         {
             mayDrag = false;
         }
@@ -263,7 +267,6 @@ public class Monster : MonoBehaviour
     void InsertIntoNearbyInventorySlot()
     {
         float lastDistance = Mathf.Infinity;
-        GameObject inventorySlot = null;
         foreach (GameObject slot in FindObjectOfType<Inventory>().slots)
         {
             if (Vector3.Distance(slot.transform.position, transform.position) < lastDistance)
@@ -272,13 +275,25 @@ public class Monster : MonoBehaviour
                 inventorySlot = slot;
             }
         }
-
-        if (inventorySlot.GetComponentInChildren<Monster>()) // swap monster with the one inside occupied slot
-        {
-            Monster swapMonster = inventorySlot.GetComponentInChildren<Monster>();
-            swapMonster.transform.position = swapPosition;
-            swapMonster.transform.localScale = swapMonster.startSize;
-        }
+        //if (inventorySlot.transform.position.z != startZPosition) // swap monster with the one inside occupied slot
+        //{
+        //    Debug.Log(inventorySlot.transform.position.z);
+        //    Debug.Log(startZPosition);
+        //    lastDistance = Mathf.Infinity;
+        //    Monster swapMonster = null;
+        //    foreach (Monster monster in FindObjectsOfType<Monster>())
+        //    {
+        //        if (Vector3.Distance(monster.transform.position, transform.position) < lastDistance && monster != this && monster.insideInventory)
+        //        {
+        //            lastDistance = Vector3.Distance(monster.transform.position, transform.position);
+        //            swapMonster = monster;
+        //        }
+        //    }
+        //    swapMonster.transform.position = swapPosition;
+        //    swapMonster.transform.localScale = swapMonster.startSize;
+        //    swapMonster.insideInventory = false;
+        //}
+        //inventorySlot.transform.position = new Vector3(inventorySlot.transform.position.x, inventorySlot.transform.position.y, -1);
         transform.position = new Vector2(inventorySlot.transform.position.x + inventoryOffset.x, inventorySlot.transform.position.y + inventoryOffset.y);
         transform.localScale = startSize * inventorySize;
         insideInventory = true;
