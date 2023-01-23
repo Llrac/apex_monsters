@@ -33,7 +33,7 @@ Transform:
   m_Children:
   - {fileID: 7108528089828552991}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &3373407991547518036
 Animator:
@@ -89,7 +89,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: Baby
-  battleStyle: Neutral
+  battleStyle: 
   monsterID: 1
   attack: 1
   startHealth: 1

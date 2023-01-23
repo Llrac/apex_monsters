@@ -5,10 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/ShowQR.unity
     guid: 16a71231d820f3542bc84e8661e00f62
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/ScanQR.unity
     guid: 1c8e630fce467e941b335ed76699c0b2
   - enabled: 1

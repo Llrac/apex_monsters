@@ -30,7 +30,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: -1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8688587284190537716
 MonoBehaviour:
@@ -58,7 +58,7 @@ MonoBehaviour:
       outWeight: 0
     - serializedVersion: 3
       time: 0.16695127
-      value: 1
+      value: 2
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -66,28 +66,10 @@ MonoBehaviour:
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.2921647
-      value: 0.1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.459116
-      value: 1
-      inSlope: -0.8750709
-      outSlope: -0.8750709
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.50085384
+      time: 0.3
       value: -0.1
-      inSlope: -26.354992
-      outSlope: -26.354992
+      inSlope: -15.783689
+      outSlope: -15.783689
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334

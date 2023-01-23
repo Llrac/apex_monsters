@@ -26,6 +26,8 @@ public class QRCodeGenerator : MonoBehaviour
             EncodeTextToQRCode();
             _textInputField.text = "";
         }
+
+        _textInputField.onValueChanged.AddListener(delegate { EncodeTextToQRCode(); });
     }
 
     // inputField to code

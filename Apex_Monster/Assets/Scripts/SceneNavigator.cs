@@ -39,7 +39,7 @@ public class SceneNavigator : MonoBehaviour
     {
         foreach (Monster monster in FindObjectsOfType<Monster>())
         {
-            if (monster.insideInventory)
+            if (monster.insideInventory && monster.type != "Baby")
             {
                 monster.transform.SetParent(gameObject.transform);
                 monster.transform.localScale = monster.startSize;

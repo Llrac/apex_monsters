@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 [RequireComponent(typeof(Rigidbody2D))]
 
@@ -11,9 +12,9 @@ public class Monster : MonoBehaviour
     public string type = "";
 
     [Tooltip("The battle style of a monster. There are 4 unique battle styles: " +
-        "Flat & Warrior & Chieftain = Fighter, Magic & Mounted = Flying, Bobble & Beast & Boss = Huge, Baby & Bird = Neutral")]
+        "Flat & Warrior & Chieftain = Fighter, Magic & Mounted = Airborne, Bobble & Beast & Boss = Huge")]
     public string battleStyle = "";
-
+    
     public int monsterID = 0;
 
     [Header("Stats")]
@@ -51,12 +52,73 @@ public class Monster : MonoBehaviour
     float startZPosition;
     [HideInInspector] public bool insideInventory = false;
 
+    // Monster Canvas Variables
+    GameObject monsterCanvas;
+    GameObject attackCanvas;
+    GameObject healthCanvas;
+    GameObject levelCanvas;
+
     void Start()
     {
+        SetupMonsterCanvas();
         startSize = transform.localScale;
         currentHealth = startHealth;
         //startZPosition = 0;
         GetComponents();
+    }
+
+    void SetupMonsterCanvas()
+    {
+        if (monsterCanvas != null) { return; }
+
+        monsterCanvas = Instantiate(FindObjectOfType<MonsterSpawner>().monsterCanvas, transform);
+        monsterCanvas.GetComponent<RectTransform>().position += type switch
+        {
+            "Chieftain" => new Vector3(0.1f, -0.3f),
+            "Warrior" => new Vector3(0.1f, -0.35f),
+            "Magic" => new Vector3(0, -0.35f),
+            "Beast" => new Vector3(0, -0.65f),
+            "Bird" => new Vector3(0.1f, -0.5f),
+            "Baby" => Vector3.zero,
+            "Boss" => new Vector3(0.05f, -0.55f),
+            "Flat" => new Vector3(0, -0.45f),
+            "Bobble" => new Vector3(0.1f, -0.25f),
+            "Mounted" => new Vector3(-0.25f, -0.7f),
+            _ => Vector3.zero
+        };
+        UpdateMonsterCanvas();
+    }
+
+    public void UpdateMonsterCanvas()
+    {
+        if (!monsterCanvas)
+        {
+            SetupMonsterCanvas();
+            return;
+        }
+
+        foreach (RectTransform child in monsterCanvas.GetComponentsInChildren<RectTransform>())
+        {
+            if (child.name == "Horizontal Layout Group" && type == "Baby")
+            {
+                child.gameObject.SetActive(false);
+            }
+            if (child.name == "Attack")
+            {
+                attackCanvas = child.gameObject;
+                attackCanvas.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = attack.ToString();
+            }
+            else if (child.name == "Health")
+            {
+                healthCanvas = child.gameObject;
+                healthCanvas.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = startHealth.ToString();
+            }
+            else if (child.name == "Level")
+            {
+                levelCanvas = child.gameObject;
+                levelCanvas.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = level.ToString();
+            }
+        }
     }
 
     void GetComponents()
@@ -194,10 +256,6 @@ public class Monster : MonoBehaviour
         else
         {
             insideInventory = false;
-            //if (insideInventory)
-            //{
-            //    inventorySlot.transform.position = new Vector3(inventorySlot.transform.position.x, inventorySlot.transform.position.y, startZPosition);
-            //}
             if (mergeMonster != null)
             {
                 BeginMerge();
@@ -231,6 +289,7 @@ public class Monster : MonoBehaviour
         }
         else
         {
+            if (mergeProgress == 0)
             mergeMonster = null;
         }
     }
@@ -296,6 +355,7 @@ public class Monster : MonoBehaviour
         //inventorySlot.transform.position = new Vector3(inventorySlot.transform.position.x, inventorySlot.transform.position.y, -1);
         transform.position = new Vector2(inventorySlot.transform.position.x + inventoryOffset.x, inventorySlot.transform.position.y + inventoryOffset.y);
         transform.localScale = startSize * inventorySize;
+        
         insideInventory = true;
     }
 
@@ -303,7 +363,7 @@ public class Monster : MonoBehaviour
     {
         if (mergeMonster.GetComponent<Monster>().insideInventory)
         {
-            FindObjectOfType<MonsterSpawner>().UpdateMonsterPositions();
+            FindObjectOfType<MonsterSpawner>().UpdateScreen();
             return;
         }
 

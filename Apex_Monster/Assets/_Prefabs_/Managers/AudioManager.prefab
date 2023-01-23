@@ -272,7 +272,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &4342059869182685953
 Transform:
   m_ObjectHideFlags: 0
@@ -546,7 +546,7 @@ Transform:
   - {fileID: 4222881444120316724}
   - {fileID: 862797233}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8511430056507892677
 MonoBehaviour:
@@ -573,4 +573,4 @@ MonoBehaviour:
   celebrate: {fileID: 8300000, guid: 2fb88f8a68bccf64888acca20322bb95, type: 3}
   playCelebration: 0
   sfxDelay: 0.6
-  celebrateDelay: 1.5
+  celebrateDelay: 0.5

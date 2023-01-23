@@ -65,6 +65,7 @@ public class CanvasHelper : MonoBehaviour
         {
             Debug.Log("changed screen size");
             ApplySafeArea();
+            FindObjectOfType<MonsterSpawner>().UpdateScreen();
             resolution = new Vector2(Screen.width, Screen.height);
         }
     }

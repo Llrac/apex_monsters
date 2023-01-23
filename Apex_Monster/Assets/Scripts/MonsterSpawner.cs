@@ -5,12 +5,14 @@ using UnityEngine.UI;
 
 public class MonsterSpawner : MonoBehaviour
 {
+    public GameObject monsterCanvas;
+
     [Header("Particles")]
     [SerializeField] GameObject windGust;
     public GameObject confetti;
     public GameObject darkConfetti;
 
-    [Header("Screen Customizable")]
+    [Header("Screen Settings")]
     [SerializeField] GameObject screenDot;
     public float inventoryScreenOffset = 1.55f;
     public float screenOffset = 0.75f;
@@ -26,17 +28,18 @@ public class MonsterSpawner : MonoBehaviour
     {
         gm = FindObjectOfType<GameManager>();
 
-        UpdateScreenDots();
+        UpdateDots();
     }
 
     #region Screen
-    public void UpdateMonsterPositions()
+    public void UpdateScreen()
     {
         foreach (GameObject dot in screenDots)
         {
             Destroy(dot);
         }
-        UpdateScreenDots();
+
+        UpdateDots();
 
         foreach (Monster monster in FindObjectsOfType<Monster>())
         {
@@ -48,7 +51,7 @@ public class MonsterSpawner : MonoBehaviour
         }
     }
 
-    void UpdateScreenDots()
+    void UpdateDots()
     {
         screenDots.Clear();
 
@@ -86,7 +89,7 @@ public class MonsterSpawner : MonoBehaviour
             Mathf.Clamp(monster.gameObject.transform.position.x, -screenSize.x + screenOffset * 1.2f, screenSize.x - screenOffset * 1.2f),
             Mathf.Clamp(monster.gameObject.transform.position.y, -screenSize.y + inventoryScreenOffset + screenOffset * 0.2f, screenSize.y - screenOffset * 1.2f));
         
-        UpdateMonsterPositions();
+        UpdateScreen();
 
         if (!windGust) { return; }
 
@@ -125,18 +128,32 @@ public class MonsterSpawner : MonoBehaviour
 
     public void Merge(Monster monster1, Monster monster2, bool lastTry = false)
     {
-        if ((monster1.CompareTag("Porcine") && monster1.level != 1 && monster2.level == 1 && monster2.type != "Chieftain" && monster2.type != "Baby") ||
-            (monster2.CompareTag("Porcine") && monster2.level != 2 && monster1.level == 1 && monster1.type != "Chieftain" && monster1.type != "Baby"))
+        // Spawn Boss
+        if (monster1.CompareTag("Porcine") && monster1.level == monster2.level + 1 && monster1.type == "Baby" && monster2.type != "Chieftain" && monster2.type != "Boss" && monster2.type != "Mounted" && monster2.type != "Baby")
         {
             SpawnBoss(monster2, monster2.transform.position.x, monster2.transform.position.y);
             monster1.Delete();
             monster2.Delete();
             return;
         }
-        else if ((monster1.CompareTag("Cloudy") && monster1.level != 1 && monster2.level == 1 && monster2.type != "Chieftain" && monster2.type != "Baby") ||
-            (monster2.CompareTag("Cloudy") && monster2.level != 2 && monster1.level == 1 && monster1.type != "Chieftain" && monster1.type != "Baby"))
+        else if (monster2.CompareTag("Porcine") && monster2.level == monster1.level + 1 && monster2.type == "Baby" && monster1.type != "Chieftain" && monster1.type != "Boss" && monster1.type != "Mounted" && monster1.type != "Baby")
+        {
+            SpawnBoss(monster1, monster2.transform.position.x, monster2.transform.position.y);
+            monster1.Delete();
+            monster2.Delete();
+            return;
+        }
+        // Spawn Mounted
+        else if (monster1.CompareTag("Cloudy") && monster1.level > monster2.level && monster1.type == "Baby" && monster2.type != "Chieftain" && monster2.type != "Boss" && monster2.type != "Mounted" && monster2.type != "Baby")
         {
             SpawnMounted(monster2, monster2.transform.position.x, monster2.transform.position.y);
+            monster1.Delete();
+            monster2.Delete();
+            return;
+        }
+        else if (monster2.CompareTag("Cloudy") && monster2.level > monster1.level && monster2.type == "Baby" && monster1.type != "Chieftain" && monster1.type != "Boss" && monster1.type != "Mounted" && monster1.type != "Baby")
+        {
+            SpawnMounted(monster1, monster2.transform.position.x, monster2.transform.position.y);
             monster1.Delete();
             monster2.Delete();
             return;
@@ -247,7 +264,7 @@ public class MonsterSpawner : MonoBehaviour
                 break;
 
             case "Baby":
-                if (monster2.CompareTag("Sinister") && !monster1.CompareTag("Undead") && monster1.type == "Baby" && monster1.startSize == monster2.startSize)
+                if (monster2.CompareTag("Sinister") && !monster1.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
                 {
                     SpawnWarrior(monster1, monster2.transform.position.x, monster2.transform.position.y);
                     monster1.Delete();
@@ -422,7 +439,7 @@ public class MonsterSpawner : MonoBehaviour
             {
                 newBaby.transform.position = new Vector2(x, y);
             }
-            UpdateMonsterPositions();
+            UpdateScreen();
         }
     }
 
@@ -445,8 +462,9 @@ public class MonsterSpawner : MonoBehaviour
         monster1.currentHealth = monster1.startHealth;
 
         monster1.transform.localScale = monster1.startSize;
+        monster1.UpdateMonsterCanvas();
         Celebrate(monster1.gameObject, monster2.gameObject);
-        UpdateMonsterPositions();
+        UpdateScreen();
     }
 
     void Celebrate(GameObject monster, GameObject infectorMonster = null)
@@ -481,9 +499,18 @@ public class MonsterSpawner : MonoBehaviour
             "Sinister" => Instantiate(gm.chieftains[9]),
             _ => Instantiate(gm.chieftains[0]),
         };
-        newChieftain.transform.position = new Vector2(x, y);
+        UpdateSpawnedMonsterStats(monster, x, y, newChieftain);
         Celebrate(newChieftain, newChieftain);
-        UpdateMonsterPositions();
+        UpdateScreen();
+    }
+
+    private static void UpdateSpawnedMonsterStats(Monster monster, float x, float y, GameObject newMonster)
+    {
+        newMonster.GetComponent<Monster>().attack *= monster.level;
+        newMonster.GetComponent<Monster>().startHealth *= monster.level;
+        newMonster.GetComponent<Monster>().level = monster.level;
+        newMonster.transform.localScale = monster.startSize;
+        newMonster.transform.position = new Vector2(x, y);
     }
 
     public void SpawnWarrior(Monster monster, float x = 0, float y = 0)
@@ -503,9 +530,9 @@ public class MonsterSpawner : MonoBehaviour
             "Sinister" => Instantiate(gm.warriors[9]),
             _ => Instantiate(gm.warriors[0]),
         };
-        newWarrior.transform.position = new Vector2(x, y);
+        UpdateSpawnedMonsterStats(monster, x, y, newWarrior);
         Celebrate(newWarrior, newWarrior);
-        UpdateMonsterPositions();
+        UpdateScreen();
     }
 
     public void SpawnMagic(Monster monster, float x = 0, float y = 0)
@@ -525,9 +552,9 @@ public class MonsterSpawner : MonoBehaviour
             "Sinister" => Instantiate(gm.magics[9]),
             _ => Instantiate(gm.magics[0]),
         };
-        newMagic.transform.position = new Vector2(x, y);
+        UpdateSpawnedMonsterStats(monster, x, y, newMagic);
         Celebrate(newMagic, newMagic);
-        UpdateMonsterPositions();
+        UpdateScreen();
     }
 
     public void SpawnBeast(Monster monster, float x = 0, float y = 0)
@@ -547,9 +574,9 @@ public class MonsterSpawner : MonoBehaviour
             "Sinister" => Instantiate(gm.beasts[9]),
             _ => Instantiate(gm.beasts[0]),
         };
-        newBeast.transform.position = new Vector2(x, y);
+        UpdateSpawnedMonsterStats(monster, x, y, newBeast);
         Celebrate(newBeast, newBeast);
-        UpdateMonsterPositions();
+        UpdateScreen();
     }
 
     public void SpawnBird(Monster monster, float x = 0, float y = 0)
@@ -569,9 +596,9 @@ public class MonsterSpawner : MonoBehaviour
             "Sinister" => Instantiate(gm.birds[9]),
             _ => Instantiate(gm.birds[0]),
         };
-        newBird.transform.position = new Vector2(x, y);
+        UpdateSpawnedMonsterStats(monster, x, y, newBird);
         Celebrate(newBird, newBird);
-        UpdateMonsterPositions();
+        UpdateScreen();
     }
 
     public void SpawnBoss(Monster monster, float x = 0, float y = 0)
@@ -591,9 +618,9 @@ public class MonsterSpawner : MonoBehaviour
             "Sinister" => Instantiate(gm.bosses[9]),
             _ => Instantiate(gm.bosses[0]),
         };
-        newBoss.transform.position = new Vector2(x, y);
+        UpdateSpawnedMonsterStats(monster, x, y, newBoss);
         Celebrate(newBoss, newBoss);
-        UpdateMonsterPositions();
+        UpdateScreen();
     }
 
     public void SpawnFlat(Monster monster, float x = 0, float y = 0)
@@ -613,9 +640,9 @@ public class MonsterSpawner : MonoBehaviour
             "Sinister" => Instantiate(gm.flats[9]),
             _ => Instantiate(gm.flats[0]),
         };
-        newFlat.transform.position = new Vector2(x, y);
+        UpdateSpawnedMonsterStats(monster, x, y, newFlat);
         Celebrate(newFlat, newFlat);
-        UpdateMonsterPositions();
+        UpdateScreen();
     }
 
     public void SpawnBobble(Monster monster, float x = 0, float y = 0)
@@ -635,9 +662,9 @@ public class MonsterSpawner : MonoBehaviour
             "Sinister" => Instantiate(gm.bobbles[9]),
             _ => Instantiate(gm.bobbles[0]),
         };
-        newBobble.transform.position = new Vector2(x, y);
+        UpdateSpawnedMonsterStats(monster, x, y, newBobble);
         Celebrate(newBobble, newBobble);
-        UpdateMonsterPositions();
+        UpdateScreen();
     }
 
     public void SpawnMounted(Monster monster, float x = 0, float y = 0)
@@ -657,9 +684,9 @@ public class MonsterSpawner : MonoBehaviour
             "Sinister" => Instantiate(gm.mounted[9]),
             _ => Instantiate(gm.mounted[0]),
         };
-        newMounted.transform.position = new Vector2(x, y);
+        UpdateSpawnedMonsterStats(monster, x, y, newMounted);
         Celebrate(newMounted, newMounted);
-        UpdateMonsterPositions();
+        UpdateScreen();
     }
 
     void SpawnUndead(int monsterTypeID, Monster monster1, Monster monster2)
@@ -683,12 +710,13 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.chieftains[3]),
         };
         newUndead.GetComponent<Monster>().attack = monster1.attack + 1;
-        newUndead.GetComponent<Monster>().startHealth = monster1.startHealth + 1;
+        newUndead.GetComponent<Monster>().startHealth = monster1.startHealth;
         newUndead.GetComponent<Monster>().startSize = monster1.startSize;
-        newUndead.transform.localScale = newUndead.GetComponent<Monster>().startSize;
+        newUndead.transform.localScale = monster1.startSize;
         newUndead.transform.position = new Vector2(monster2.transform.position.x, monster2.transform.position.y);
+        newUndead.GetComponent<Monster>().UpdateMonsterCanvas();
         Celebrate(newUndead, monster2.gameObject);
-        UpdateMonsterPositions();
+        UpdateScreen();
     }
     #endregion
 }

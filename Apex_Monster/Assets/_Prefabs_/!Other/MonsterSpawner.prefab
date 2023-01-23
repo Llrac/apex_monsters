@@ -30,7 +30,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7720915940141726638
 MonoBehaviour:
@@ -44,6 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cab88524d338004a85ffe9be63d6f46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  monsterCanvas: {fileID: 5587161612740721492, guid: 9eb16a6e116b07f439f4900b6147fed8, type: 3}
   windGust: {fileID: 83434062563891065, guid: 0cc68b9c817bc8548abda2959a48b24c, type: 3}
   confetti: {fileID: 320497758631505516, guid: 7f72ef04864d25844805a231e267327c, type: 3}
   darkConfetti: {fileID: 8789350007190929540, guid: b041e28cd1597a941bd07923f9139978, type: 3}
