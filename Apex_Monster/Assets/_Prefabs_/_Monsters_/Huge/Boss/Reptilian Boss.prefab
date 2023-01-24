@@ -416,7 +416,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: Boss
   battleStyle: Huge
-  monsterID: 47
+  monsterID: 43
   attack: 5
   startHealth: 16
   currentHealth: 1

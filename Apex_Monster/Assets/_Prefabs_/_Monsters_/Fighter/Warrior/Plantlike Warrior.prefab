@@ -325,7 +325,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: Warrior
   battleStyle: Fighter
-  monsterID: 94
+  monsterID: 99
   attack: 3
   startHealth: 6
   currentHealth: 1

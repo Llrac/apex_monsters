@@ -30,7 +30,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8688587284190537716
 MonoBehaviour:
@@ -198,3 +198,10 @@ MonoBehaviour:
   - {fileID: 6254656124940296475, guid: d15334036dcb7e0449a3d457f83d24a6, type: 3}
   - {fileID: 2597130648017907169, guid: d42062bbc566e014a9178fa0340e52f3, type: 3}
   - {fileID: 1974336110977512133, guid: 4e0a6dfd7d82d964aa6c988d209c8507, type: 3}
+  windGust: {fileID: 83434062563891065, guid: 0cc68b9c817bc8548abda2959a48b24c, type: 3}
+  confetti: {fileID: 320497758631505516, guid: 7f72ef04864d25844805a231e267327c, type: 3}
+  darkConfetti: {fileID: 8789350007190929540, guid: b041e28cd1597a941bd07923f9139978, type: 3}
+  screenDot: {fileID: 1483750061961318467, guid: d7b6e018a6e55fe46a279223a9bb19a4, type: 3}
+  inventoryScreenOffset: 1.55
+  screenOffset: 0.75
+  screenSize: {x: 0, y: 0}

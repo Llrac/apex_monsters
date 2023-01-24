@@ -512,7 +512,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: Beast
   battleStyle: Huge
-  monsterID: 15
+  monsterID: 16
   attack: 2
   startHealth: 11
   currentHealth: 1

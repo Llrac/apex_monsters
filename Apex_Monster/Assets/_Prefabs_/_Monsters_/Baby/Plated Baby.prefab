@@ -224,7 +224,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: Baby
   battleStyle: 
-  monsterID: 5
+  monsterID: 6
   attack: 1
   startHealth: 1
   currentHealth: 1

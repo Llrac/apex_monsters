@@ -90,7 +90,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: Chieftain
   battleStyle: Fighter
-  monsterID: 60
+  monsterID: 54
   attack: 7
   startHealth: 12
   currentHealth: 1

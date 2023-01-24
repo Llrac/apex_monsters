@@ -315,7 +315,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: Bird
   battleStyle: Airborne
-  monsterID: 24
+  monsterID: 29
   attack: 3
   startHealth: 6
   currentHealth: 1

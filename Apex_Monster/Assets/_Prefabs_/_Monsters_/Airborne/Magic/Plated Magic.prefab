@@ -394,7 +394,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: Magic
   battleStyle: Airborne
-  monsterID: 75
+  monsterID: 76
   attack: 4
   startHealth: 3
   currentHealth: 1

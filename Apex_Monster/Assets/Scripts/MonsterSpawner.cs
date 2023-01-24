@@ -1,120 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class MonsterSpawner : MonoBehaviour
 {
     public GameObject monsterCanvas;
 
-    [Header("Particles")]
-    [SerializeField] GameObject windGust;
-    public GameObject confetti;
-    public GameObject darkConfetti;
-
-    [Header("Screen Settings")]
-    [SerializeField] GameObject screenDot;
-    public float inventoryScreenOffset = 1.55f;
-    public float screenOffset = 0.75f;
-    readonly List<GameObject> screenDots = new();
-    Vector2 screenSize;
-
     [Header("Debug: Spawn Monster Baby")]
     [SerializeField] bool spawnBabies = false;
     [SerializeField] int spawnAmount = 1;
+    [SerializeField] bool spawnMonsterID = false;
+    [SerializeField] int monsterID = 1;
     GameManager gm;
 
     void Start()
     {
         gm = FindObjectOfType<GameManager>();
-
-        UpdateDots();
+        gm.UpdateScreen();
     }
-
-    #region Screen
-    public void UpdateScreen()
-    {
-        foreach (GameObject dot in screenDots)
-        {
-            Destroy(dot);
-        }
-
-        UpdateDots();
-
-        foreach (Monster monster in FindObjectsOfType<Monster>())
-        {
-            if (monster.transform.position.x < -screenSize.x + screenOffset || monster.transform.position.x > screenSize.x - screenOffset ||
-                monster.transform.position.y < -screenSize.y + inventoryScreenOffset || monster.transform.position.y > screenSize.y - screenOffset)
-            {
-                RepositionMonster(monster);
-            }
-        }
-    }
-
-    void UpdateDots()
-    {
-        screenDots.Clear();
-
-        RectTransform safeArea = null;
-        foreach (Image imageObject in FindObjectsOfType<Image>())
-        {
-            if (imageObject.name == "Background")
-            {
-                safeArea = imageObject.gameObject.GetComponent<RectTransform>();
-            }
-        }
-
-        screenSize = new(safeArea.rect.width, safeArea.rect.height);
-        screenSize = Camera.main.ScreenToWorldPoint(screenSize);
-
-        // TODO: Dots should spawn in SafeArea's corners and screenOffset from SafeArea's edges.
-        screenDots.Add(Instantiate(screenDot, new Vector2(-screenSize.x, -screenSize.y), Quaternion.identity, transform));
-        screenDots.Add(Instantiate(screenDot, new Vector2(screenSize.x, -screenSize.y), Quaternion.identity, transform));
-        screenDots.Add(Instantiate(screenDot, new Vector2(-screenSize.x, screenSize.y), Quaternion.identity, transform));
-        screenDots.Add(Instantiate(screenDot, new Vector2(screenSize.x, screenSize.y), Quaternion.identity, transform));
-
-        screenDots.Add(Instantiate(screenDot, new Vector2(-screenSize.x + screenOffset, -screenSize.y + inventoryScreenOffset), Quaternion.identity, transform));
-        screenDots.Add(Instantiate(screenDot, new Vector2(screenSize.x - screenOffset, -screenSize.y + inventoryScreenOffset), Quaternion.identity, transform));
-        screenDots.Add(Instantiate(screenDot, new Vector2(-screenSize.x + screenOffset, screenSize.y - screenOffset), Quaternion.identity, transform));
-        screenDots.Add(Instantiate(screenDot, new Vector2(screenSize.x - screenOffset, screenSize.y - screenOffset), Quaternion.identity, transform));
-    }
-
-    void RepositionMonster(Monster monster)
-    {
-        if (monster.insideInventory && monster.mergeProgress == 0)
-            return;
-
-        Vector2 lastDirection = monster.gameObject.transform.position;
-        monster.gameObject.transform.position = new Vector2(
-            Mathf.Clamp(monster.gameObject.transform.position.x, -screenSize.x + screenOffset * 1.2f, screenSize.x - screenOffset * 1.2f),
-            Mathf.Clamp(monster.gameObject.transform.position.y, -screenSize.y + inventoryScreenOffset + screenOffset * 0.2f, screenSize.y - screenOffset * 1.2f));
-        
-        UpdateScreen();
-
-        if (!windGust) { return; }
-
-        GameObject newWindGust = Instantiate(windGust);
-        newWindGust.transform.position = monster.transform.position;
-        Destroy(newWindGust, 1);
-
-        if (lastDirection.x < monster.gameObject.transform.position.x)
-        {
-            newWindGust.transform.eulerAngles = new Vector3(0, -90, -90);
-        }
-        else if (lastDirection.x > monster.gameObject.transform.position.x)
-        {
-            newWindGust.transform.eulerAngles = new Vector3(-180, -90, -90);
-        }
-        if (lastDirection.y < monster.gameObject.transform.position.y)
-        {
-            newWindGust.transform.eulerAngles = new Vector3(90, -90, -90);
-        }
-        else if (lastDirection.y > monster.gameObject.transform.position.y)
-        {
-            newWindGust.transform.eulerAngles = new Vector3(-90, -90, -90);
-        }
-    }
-    #endregion
 
     void Update()
     {
@@ -123,6 +26,11 @@ public class MonsterSpawner : MonoBehaviour
         {
             SpawnRandomBabies(spawnAmount, 0, 0, true);
             spawnBabies = false;
+        }
+        if (spawnMonsterID)
+        {
+            SpawnMonsterID(monsterID);
+            spawnMonsterID = false;
         }
     }
 
@@ -419,7 +327,7 @@ public class MonsterSpawner : MonoBehaviour
         }
     }
 
-    public void SpawnRandomBabies(int amount = 1, float x = 0, float y = 0, bool randomizeSpawnPosition = false, bool farmed = false)
+    void SpawnRandomBabies(int amount = 1, float x = 0, float y = 0, bool randomizeSpawnPosition = false, bool farmed = false)
     {
         for (int i = 0; i < amount; i++)
         {
@@ -433,14 +341,153 @@ public class MonsterSpawner : MonoBehaviour
             
             if (randomizeSpawnPosition)
             {
-                newBaby.transform.position = new Vector2(Random.Range(-screenSize.x, screenSize.x), Random.Range(-screenSize.y, screenSize.y));
+                newBaby.transform.position = new Vector2(Random.Range(-gm.screenSize.x, gm.screenSize.x), Random.Range(-gm.screenSize.y, gm.screenSize.y));
             }
             else
             {
                 newBaby.transform.position = new Vector2(x, y);
             }
-            UpdateScreen();
+            gm.UpdateScreen();
         }
+    }
+
+    void SpawnMonsterID(int monsterID, float x = 0, float y = 0, bool randomizeSpawnPosition = false)
+    {
+        GameObject newMonster;
+        newMonster = monsterID switch
+        {
+            // 01-10    BABIES
+            1 => Instantiate(gm.babies[0]),
+            2 => Instantiate(gm.babies[1]),
+            3 => Instantiate(gm.babies[2]),
+            4 => Instantiate(gm.babies[3]),
+            5 => Instantiate(gm.babies[4]),
+            6 => Instantiate(gm.babies[5]),
+            7 => Instantiate(gm.babies[6]),
+            8 => Instantiate(gm.babies[7]),
+            9 => Instantiate(gm.babies[8]),
+            10 => Instantiate(gm.babies[9]),
+
+            // 11-20    BEASTS
+            11 => Instantiate(gm.beasts[0]),
+            12 => Instantiate(gm.beasts[1]),
+            13 => Instantiate(gm.beasts[2]),
+            14 => Instantiate(gm.beasts[3]),
+            15 => Instantiate(gm.beasts[4]),
+            16 => Instantiate(gm.beasts[5]),
+            17 => Instantiate(gm.beasts[6]),
+            18 => Instantiate(gm.beasts[7]),
+            19 => Instantiate(gm.beasts[8]),
+            20 => Instantiate(gm.beasts[9]),
+
+            // 21-30    BIRDS
+            21 => Instantiate(gm.birds[0]),
+            22 => Instantiate(gm.birds[1]),
+            23 => Instantiate(gm.birds[2]),
+            24 => Instantiate(gm.birds[3]),
+            25 => Instantiate(gm.birds[4]),
+            26 => Instantiate(gm.birds[5]),
+            27 => Instantiate(gm.birds[6]),
+            28 => Instantiate(gm.birds[7]),
+            29 => Instantiate(gm.birds[8]),
+            30 => Instantiate(gm.birds[9]),
+
+            // 31-40    BOBBLES
+            31 => Instantiate(gm.bobbles[0]),
+            32 => Instantiate(gm.bobbles[1]),
+            33 => Instantiate(gm.bobbles[2]),
+            34 => Instantiate(gm.bobbles[3]),
+            35 => Instantiate(gm.bobbles[4]),
+            36 => Instantiate(gm.bobbles[5]),
+            37 => Instantiate(gm.bobbles[6]),
+            38 => Instantiate(gm.bobbles[7]),
+            39 => Instantiate(gm.bobbles[8]),
+            40 => Instantiate(gm.bobbles[9]),
+
+            // 41-50    BOSSES
+            41 => Instantiate(gm.bosses[0]),
+            42 => Instantiate(gm.bosses[1]),
+            43 => Instantiate(gm.bosses[2]),
+            44 => Instantiate(gm.bosses[3]),
+            45 => Instantiate(gm.bosses[4]),
+            46 => Instantiate(gm.bosses[5]),
+            47 => Instantiate(gm.bosses[6]),
+            48 => Instantiate(gm.bosses[7]),
+            49 => Instantiate(gm.bosses[8]),
+            50 => Instantiate(gm.bosses[9]),
+
+            // 51-60    CHIEFTAINS
+            51 => Instantiate(gm.chieftains[0]),
+            52 => Instantiate(gm.chieftains[1]),
+            53 => Instantiate(gm.chieftains[2]),
+            54 => Instantiate(gm.chieftains[3]),
+            55 => Instantiate(gm.chieftains[4]),
+            56 => Instantiate(gm.chieftains[5]),
+            57 => Instantiate(gm.chieftains[6]),
+            58 => Instantiate(gm.chieftains[7]),
+            59 => Instantiate(gm.chieftains[8]),
+            60 => Instantiate(gm.chieftains[9]),
+
+            // 61-70    FLATS
+            61 => Instantiate(gm.flats[0]),
+            62 => Instantiate(gm.flats[1]),
+            63 => Instantiate(gm.flats[2]),
+            64 => Instantiate(gm.flats[3]),
+            65 => Instantiate(gm.flats[4]),
+            66 => Instantiate(gm.flats[5]),
+            67 => Instantiate(gm.flats[6]),
+            68 => Instantiate(gm.flats[7]),
+            69 => Instantiate(gm.flats[8]),
+            70 => Instantiate(gm.flats[9]),
+
+            // 71-80    MAGICS
+            71 => Instantiate(gm.magics[0]),
+            72 => Instantiate(gm.magics[1]),
+            73 => Instantiate(gm.magics[2]),
+            74 => Instantiate(gm.magics[3]),
+            75 => Instantiate(gm.magics[4]),
+            76 => Instantiate(gm.magics[5]),
+            77 => Instantiate(gm.magics[6]),
+            78 => Instantiate(gm.magics[7]),
+            79 => Instantiate(gm.magics[8]),
+            80 => Instantiate(gm.magics[9]),
+
+            // 81-90    MOUNTED
+            81 => Instantiate(gm.mounted[0]),
+            82 => Instantiate(gm.mounted[1]),
+            83 => Instantiate(gm.mounted[2]),
+            84 => Instantiate(gm.mounted[3]),
+            85 => Instantiate(gm.mounted[4]),
+            86 => Instantiate(gm.mounted[5]),
+            87 => Instantiate(gm.mounted[6]),
+            88 => Instantiate(gm.mounted[7]),
+            89 => Instantiate(gm.mounted[8]),
+            90 => Instantiate(gm.mounted[9]),
+
+            // 91-100   WARRIORS
+            91 => Instantiate(gm.warriors[0]),
+            92 => Instantiate(gm.warriors[1]),
+            93 => Instantiate(gm.warriors[2]),
+            94 => Instantiate(gm.warriors[3]),
+            95 => Instantiate(gm.warriors[4]),
+            96 => Instantiate(gm.warriors[5]),
+            97 => Instantiate(gm.warriors[6]),
+            98 => Instantiate(gm.warriors[7]),
+            99 => Instantiate(gm.warriors[8]),
+            100 => Instantiate(gm.warriors[9]),
+
+            // missing monsterID
+            _ => Instantiate(gm.babies[0]),
+        };
+        if (randomizeSpawnPosition)
+        {
+            newMonster.transform.position = new Vector2(Random.Range(-gm.screenSize.x, gm.screenSize.x), Random.Range(-gm.screenSize.y, gm.screenSize.y));
+        }
+        else
+        {
+            newMonster.transform.position = new Vector2(x, y);
+        }
+        gm.UpdateScreen();
     }
 
     void MonsterLevelUp(Monster monster1, Monster monster2, bool roboticUpgrade = false)
@@ -464,7 +511,7 @@ public class MonsterSpawner : MonoBehaviour
         monster1.transform.localScale = monster1.startSize;
         monster1.UpdateMonsterCanvas();
         Celebrate(monster1.gameObject, monster2.gameObject);
-        UpdateScreen();
+        gm.UpdateScreen();
     }
 
     void Celebrate(GameObject monster, GameObject infectorMonster = null)
@@ -501,7 +548,7 @@ public class MonsterSpawner : MonoBehaviour
         };
         UpdateSpawnedMonsterStats(monster, x, y, newChieftain);
         Celebrate(newChieftain, newChieftain);
-        UpdateScreen();
+        gm.UpdateScreen();
     }
 
     private static void UpdateSpawnedMonsterStats(Monster monster, float x, float y, GameObject newMonster)
@@ -532,7 +579,7 @@ public class MonsterSpawner : MonoBehaviour
         };
         UpdateSpawnedMonsterStats(monster, x, y, newWarrior);
         Celebrate(newWarrior, newWarrior);
-        UpdateScreen();
+        gm.UpdateScreen();
     }
 
     public void SpawnMagic(Monster monster, float x = 0, float y = 0)
@@ -554,7 +601,7 @@ public class MonsterSpawner : MonoBehaviour
         };
         UpdateSpawnedMonsterStats(monster, x, y, newMagic);
         Celebrate(newMagic, newMagic);
-        UpdateScreen();
+        gm.UpdateScreen();
     }
 
     public void SpawnBeast(Monster monster, float x = 0, float y = 0)
@@ -576,7 +623,7 @@ public class MonsterSpawner : MonoBehaviour
         };
         UpdateSpawnedMonsterStats(monster, x, y, newBeast);
         Celebrate(newBeast, newBeast);
-        UpdateScreen();
+        gm.UpdateScreen();
     }
 
     public void SpawnBird(Monster monster, float x = 0, float y = 0)
@@ -598,7 +645,7 @@ public class MonsterSpawner : MonoBehaviour
         };
         UpdateSpawnedMonsterStats(monster, x, y, newBird);
         Celebrate(newBird, newBird);
-        UpdateScreen();
+        gm.UpdateScreen();
     }
 
     public void SpawnBoss(Monster monster, float x = 0, float y = 0)
@@ -620,7 +667,7 @@ public class MonsterSpawner : MonoBehaviour
         };
         UpdateSpawnedMonsterStats(monster, x, y, newBoss);
         Celebrate(newBoss, newBoss);
-        UpdateScreen();
+        gm.UpdateScreen();
     }
 
     public void SpawnFlat(Monster monster, float x = 0, float y = 0)
@@ -642,7 +689,7 @@ public class MonsterSpawner : MonoBehaviour
         };
         UpdateSpawnedMonsterStats(monster, x, y, newFlat);
         Celebrate(newFlat, newFlat);
-        UpdateScreen();
+        gm.UpdateScreen();
     }
 
     public void SpawnBobble(Monster monster, float x = 0, float y = 0)
@@ -664,7 +711,7 @@ public class MonsterSpawner : MonoBehaviour
         };
         UpdateSpawnedMonsterStats(monster, x, y, newBobble);
         Celebrate(newBobble, newBobble);
-        UpdateScreen();
+        gm.UpdateScreen();
     }
 
     public void SpawnMounted(Monster monster, float x = 0, float y = 0)
@@ -686,7 +733,7 @@ public class MonsterSpawner : MonoBehaviour
         };
         UpdateSpawnedMonsterStats(monster, x, y, newMounted);
         Celebrate(newMounted, newMounted);
-        UpdateScreen();
+        gm.UpdateScreen();
     }
 
     void SpawnUndead(int monsterTypeID, Monster monster1, Monster monster2)
@@ -716,7 +763,7 @@ public class MonsterSpawner : MonoBehaviour
         newUndead.transform.position = new Vector2(monster2.transform.position.x, monster2.transform.position.y);
         newUndead.GetComponent<Monster>().UpdateMonsterCanvas();
         Celebrate(newUndead, monster2.gameObject);
-        UpdateScreen();
+        gm.UpdateScreen();
     }
     #endregion
 }

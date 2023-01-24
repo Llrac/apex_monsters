@@ -35,8 +35,22 @@ public class SceneNavigator : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.R))
+        {
+            PlayerPrefs.DeleteAll();
+            Debug.Log("deleted all keys");
+        }
+    }
+
     public void LoadNextScene()
     {
+        lastScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(lastScene.buildIndex + 1);
+
+        if (FindObjectOfType<Monster>() == null) { return; }
+
         foreach (Monster monster in FindObjectsOfType<Monster>())
         {
             if (monster.insideInventory && monster.type != "Baby")
@@ -46,7 +60,5 @@ public class SceneNavigator : MonoBehaviour
                 yourMonsters.Add(monster.gameObject);
             }
         }
-        lastScene = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(lastScene.buildIndex + 1);
     }
 }

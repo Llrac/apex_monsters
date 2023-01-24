@@ -229,7 +229,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: Flat
   battleStyle: Fighter
-  monsterID: 62
+  monsterID: 68
   attack: 1
   startHealth: 13
   currentHealth: 1

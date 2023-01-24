@@ -8,29 +8,60 @@ using TMPro;
 
 public class QRCodeGenerator : MonoBehaviour
 {
-    const string QRCODE = "";
+    const string LAST_EMAIL = "email";
+    const string LAST_PASSWORD = "password";
 
-    [SerializeField] RawImage _rawImageReceiver;
-    [SerializeField] TMP_InputField _textInputField;
+    [SerializeField] TMP_InputField emailTextField;
+    [SerializeField] TMP_InputField passwordTextField;
+    [SerializeField] TextMeshProUGUI feedbackTextField;
+    [SerializeField] RawImage scanField;
 
-    Texture2D _storeEncodedTexture;
+    Texture2D storedEncodedTexture;
 
     void Start()
     {
-        _storeEncodedTexture = new Texture2D(256, 256);
-        _rawImageReceiver.texture = _storeEncodedTexture;
+        Debug.Log(feedbackTextField.text);
+        storedEncodedTexture = new Texture2D(256, 256);
+        scanField.texture = storedEncodedTexture;
 
-        if (PlayerPrefs.HasKey(QRCODE) && PlayerPrefs.GetString(QRCODE) != "")
+        if (PlayerPrefs.HasKey(LAST_EMAIL) && PlayerPrefs.GetString(LAST_EMAIL) != "email")
         {
-            _textInputField.text = PlayerPrefs.GetString(QRCODE);
-            EncodeTextToQRCode();
-            _textInputField.text = "";
+            emailTextField.text = PlayerPrefs.GetString(LAST_EMAIL);
+        }
+        if (PlayerPrefs.HasKey(LAST_PASSWORD) && PlayerPrefs.GetString(LAST_PASSWORD) != "password")
+        {
+            passwordTextField.text = PlayerPrefs.GetString(LAST_PASSWORD);
+        }
+        if (PlayerPrefs.HasKey(LAST_EMAIL) && PlayerPrefs.GetString(LAST_EMAIL) != "email" &&
+            PlayerPrefs.HasKey(LAST_PASSWORD) && PlayerPrefs.GetString(LAST_PASSWORD) != "password")
+        {
+            EncodeNewTextToQRCode();
         }
 
-        _textInputField.onValueChanged.AddListener(delegate { EncodeTextToQRCode(); });
+        emailTextField.onEndEdit.AddListener(delegate { EncodeNewTextToQRCode(); });
+        passwordTextField.onEndEdit.AddListener(delegate { EncodeNewTextToQRCode(); });
     }
 
-    // inputField to code
+    void EncodeNewTextToQRCode()
+    {
+        feedbackTextField.text = PlayerPrefs.GetString(LAST_EMAIL) + " : " + PlayerPrefs.GetString(LAST_PASSWORD);
+        EncodeTextToQRCode();
+    }
+
+    void EncodeTextToQRCode()
+    {
+        string writeText = string.IsNullOrEmpty(feedbackTextField.text) ? "You should write something" : feedbackTextField.text;
+
+        Color32[] convertPixelsToTexture = Encode(writeText, storedEncodedTexture.width, storedEncodedTexture.height);
+        storedEncodedTexture.SetPixels32(convertPixelsToTexture);
+        storedEncodedTexture.Apply();
+
+        scanField.texture = storedEncodedTexture;
+
+        PlayerPrefs.SetString(LAST_EMAIL, emailTextField.text);
+        PlayerPrefs.SetString(LAST_PASSWORD, passwordTextField.text);
+    }
+
     Color32[] Encode(string textForEncoding, int width, int height)
     {
         BarcodeWriter writer = new()
@@ -44,23 +75,5 @@ public class QRCodeGenerator : MonoBehaviour
         };
 
         return writer.Write(textForEncoding);
-    }
-
-    public void OnClickEncode()
-    {
-        EncodeTextToQRCode();
-    }
-
-    void EncodeTextToQRCode()
-    {
-        string textWrite = string.IsNullOrEmpty(_textInputField.text) ? "You should write something" : _textInputField.text;
-
-        Color32[] _convertPixelsToTexture = Encode(textWrite, _storeEncodedTexture.width, _storeEncodedTexture.height);
-        _storeEncodedTexture.SetPixels32(_convertPixelsToTexture);
-        _storeEncodedTexture.Apply();
-
-        _rawImageReceiver.texture = _storeEncodedTexture;
-
-        PlayerPrefs.SetString(QRCODE, _textInputField.text);
     }
 }

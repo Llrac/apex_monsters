@@ -363,7 +363,7 @@ public class Monster : MonoBehaviour
     {
         if (mergeMonster.GetComponent<Monster>().insideInventory)
         {
-            FindObjectOfType<MonsterSpawner>().UpdateScreen();
+            FindObjectOfType<GameManager>().UpdateScreen();
             return;
         }
 

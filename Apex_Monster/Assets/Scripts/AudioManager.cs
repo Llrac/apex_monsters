@@ -109,12 +109,12 @@ public class AudioManager : MonoBehaviour
         if (darkConfetti)
         {
             celebrationAS.pitch = 1.25f;
-            newConfetti = Instantiate(FindObjectOfType<MonsterSpawner>().darkConfetti);
+            newConfetti = Instantiate(FindObjectOfType<GameManager>().darkConfetti);
         }
         else
         {
             celebrationAS.pitch = 1.75f;
-            newConfetti = Instantiate(FindObjectOfType<MonsterSpawner>().confetti);
+            newConfetti = Instantiate(FindObjectOfType<GameManager>().confetti);
         }
         celebrationAS.PlayOneShot(celebrate);
         newConfetti.transform.position = new Vector2(xPos, yPos);

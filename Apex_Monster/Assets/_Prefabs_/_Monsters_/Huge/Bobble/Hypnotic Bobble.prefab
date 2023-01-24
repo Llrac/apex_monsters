@@ -225,7 +225,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: Bobble
   battleStyle: Huge
-  monsterID: 33
+  monsterID: 31
   attack: 3
   startHealth: 6
   currentHealth: 1

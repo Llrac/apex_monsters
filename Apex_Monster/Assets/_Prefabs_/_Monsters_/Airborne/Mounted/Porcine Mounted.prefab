@@ -90,7 +90,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: Mounted
   battleStyle: Airborne
-  monsterID: 86
+  monsterID: 85
   attack: 7
   startHealth: 8
   currentHealth: 1
