@@ -67,9 +67,14 @@ public class CanvasHelper : MonoBehaviour
             ApplySafeArea();
             if (FindObjectOfType<GameManager>())
                 FindObjectOfType<GameManager>().UpdateScreen();
-            //if (FindObjectOfType<AccountSettings>())
-            //    FindObjectOfType<AccountSettings>().UpdateScreen();
             resolution = new Vector2(Screen.width, Screen.height);
+            if (FindObjectOfType<CanvasAdapter>())
+            {
+                foreach (CanvasAdapter canvasAdapter in FindObjectsOfType<CanvasAdapter>())
+                {
+                    canvasAdapter.UpdateThisObjectsResolution(resolution);
+                }
+            }
         }
     }
 

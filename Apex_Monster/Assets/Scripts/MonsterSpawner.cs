@@ -351,8 +351,9 @@ public class MonsterSpawner : MonoBehaviour
         }
     }
 
-    void SpawnMonsterID(int monsterID, float x = 0, float y = 0, bool randomizeSpawnPosition = false)
+    static public void SpawnMonsterID(int monsterID, float x = 0, float y = 0, bool randomizeSpawnPosition = false)
     {
+        GameManager gm = FindObjectOfType<GameManager>();
         GameObject newMonster;
         newMonster = monsterID switch
         {
@@ -487,6 +488,7 @@ public class MonsterSpawner : MonoBehaviour
         {
             newMonster.transform.position = new Vector2(x, y);
         }
+        newMonster.transform.SetParent(FindObjectOfType<SceneNavigator>().transform);
         gm.UpdateScreen();
     }
 

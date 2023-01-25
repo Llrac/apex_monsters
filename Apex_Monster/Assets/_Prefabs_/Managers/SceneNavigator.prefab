@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3097970243360490141}
   - component: {fileID: 957280722}
+  - component: {fileID: 1553561850}
   m_Layer: 0
   m_Name: SceneNavigator
   m_TagString: Untagged
@@ -42,5 +43,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e1131387a81713448950a4f9dc8816af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  monsterIDs: 
+--- !u!114 &1553561850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3097970243360490140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9cba7ac0d81a3043910db2936f3b597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

@@ -10,7 +10,7 @@ public class SceneNavigator : MonoBehaviour
     AudioManager am;
     GameManager gm;
 
-    public List<GameObject> yourMonsters = new();
+    [HideInInspector] public List<int> monsterIDs = new();
 
     void Awake()
     {
@@ -49,16 +49,30 @@ public class SceneNavigator : MonoBehaviour
         lastScene = SceneManager.GetActiveScene();
         SceneManager.LoadScene(lastScene.buildIndex + 1);
 
+        //FindObjectOfType<PlayerSaveDataManager>().ResetSavedData();
+
         if (FindObjectOfType<Monster>() == null) { return; }
+
+        monsterIDs.Clear();
 
         foreach (Monster monster in FindObjectsOfType<Monster>())
         {
             if (monster.insideInventory && monster.type != "Baby")
             {
-                monster.transform.SetParent(gameObject.transform);
-                monster.transform.localScale = monster.startSize;
-                yourMonsters.Add(monster.gameObject);
+                monsterIDs.Add(monster.monsterID);
             }
         }
+        FindObjectOfType<DatabaseManager>().SavePlayerData();
+        FindObjectOfType<DatabaseManager>().DebugSavedData();
+    }
+
+    public void LoadScanQRScene()
+    {
+        SceneManager.LoadScene("ScanQR");
+    }
+
+    public void LoadShowQRScene()
+    {
+        SceneManager.LoadScene("ShowQR");
     }
 }
