@@ -170,7 +170,7 @@ public class Monster : MonoBehaviour
         }
         if (mergeProgress == 2 && !hasPlayedSFX && mergeTimer > gm.positionDuringMergeCurve[gm.positionDuringMergeCurve.length - 1].time * FindObjectOfType<AudioManager>().sfxDelay)
         {
-            FindObjectOfType<AudioManager>().GetNextPopSFX();
+            FindObjectOfType<AudioManager>().PlayPopSFX();
             hasPlayedSFX = true;
         }
         if (mergeProgress == 2 && mergeTimer >= gm.positionDuringMergeCurve[gm.positionDuringMergeCurve.length - 1].time)

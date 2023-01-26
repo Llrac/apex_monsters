@@ -174,7 +174,7 @@ AudioSource:
   m_PlayOnAwake: 0
   m_Volume: 0.5
   m_Pitch: 1
-  Loop: 1
+  Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -301,8 +301,8 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 0.5
-  m_Pitch: 1.5
-  Loop: 1
+  m_Pitch: 1
+  Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -566,6 +566,7 @@ MonoBehaviour:
   celebrationAS: {fileID: 0}
   dropletsOfDew: {fileID: 8300000, guid: aded2fa114e7bf546bf1e1d5f04766a6, type: 3}
   shadesOfOrange: {fileID: 8300000, guid: 80304396d73640b438991798b49383e4, type: 3}
+  anAutumn: {fileID: 8300000, guid: 3aed20ea0b2375c48bc2217bee2cf084, type: 3}
   undeniable: {fileID: 8300000, guid: a7faae072eabe284cae6252b90dfe4ef, type: 3}
   tuffEnough: {fileID: 8300000, guid: d13904179a3207940a58b5e985213fb2, type: 3}
   mergePop1: {fileID: 8300000, guid: 28b4abdb91b38af4bb14be8972668c31, type: 3}

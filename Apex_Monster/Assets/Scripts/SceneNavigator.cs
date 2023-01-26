@@ -6,9 +6,11 @@ using UnityEngine.SceneManagement;
 public class SceneNavigator : MonoBehaviour
 {
     public static SceneNavigator Instance { get; set; }
+
     Scene lastScene;
     AudioManager am;
     GameManager gm;
+    QRCodeGenerator QRcg;
 
     [HideInInspector] public List<int> monsterIDs = new();
 
@@ -16,22 +18,40 @@ public class SceneNavigator : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(Instance);
+            foreach (AudioManager audioManager in FindObjectsOfType<AudioManager>())
+            {
+                if (!audioManager.sceneNavigated)
+                {
+                    Destroy(audioManager.gameObject);
+                }
+            }
+            foreach (GameManager gameManager in FindObjectsOfType<GameManager>())
+            {
+                if (!gameManager.sceneNavigated)
+                {
+                    Destroy(gameManager.gameObject);
+                }
+            }
+            Destroy(gameObject);
             return;
         }
-
+        DontDestroyOnLoad(gameObject);
         Instance = this;
-        DontDestroyOnLoad(this);
-
         if (FindObjectOfType<AudioManager>() != null)
         {
             FindObjectOfType<AudioManager>().transform.SetParent(gameObject.transform);
             am = GetComponentInChildren<AudioManager>();
+            am.sceneNavigated = true;
         }
         if (FindObjectOfType<GameManager>() != null)
         {
             FindObjectOfType<GameManager>().transform.SetParent(gameObject.transform);
             gm = GetComponentInChildren<GameManager>();
+            gm.sceneNavigated = true;
+        }
+        if (FindObjectOfType<QRCodeGenerator>() != null)
+        {
+            QRcg = FindObjectOfType<QRCodeGenerator>();
         }
     }
 
@@ -44,35 +64,60 @@ public class SceneNavigator : MonoBehaviour
         }
     }
 
+    private void SaveAndDebugPlayerData()
+    {
+        GetComponent<DatabaseManager>().SavePlayerData();
+        GetComponent<DatabaseManager>().DebugSavedData();
+    }
+
     public void LoadNextScene()
     {
         lastScene = SceneManager.GetActiveScene();
         SceneManager.LoadScene(lastScene.buildIndex + 1);
 
-        //FindObjectOfType<PlayerSaveDataManager>().ResetSavedData();
+        PrepareValuesForScene("BattleMonsters");
+        SaveAndDebugPlayerData();
+    }
 
-        if (FindObjectOfType<Monster>() == null) { return; }
+    public void LoadScene(string sceneName)
+    {
+        SceneManager.LoadScene(sceneName);
 
-        monsterIDs.Clear();
+        PrepareValuesForScene(sceneName);
+        SaveAndDebugPlayerData();
+    }
 
-        foreach (Monster monster in FindObjectsOfType<Monster>())
+    void PrepareValuesForScene(string sceneName)
+    {
+        if (sceneName == "ShowQR")
         {
-            if (monster.insideInventory && monster.type != "Baby")
+
+        }
+        else if (sceneName == "ScanQR")
+        {
+            //
+        }
+        else if (sceneName == "ShowOpponent")
+        {
+            // get playerName and profilePicture from ShowQR so that both players see each other's names and pictures
+        }
+        else if (sceneName == "MyMonsters")
+        {
+            // nothing
+        }
+        else if (sceneName == "BattleMonsters")
+        {
+            // get monsters from MyMonsters that you will go to battle with
+            if (FindObjectOfType<Monster>() == null) { return; }
+
+            monsterIDs.Clear();
+            foreach (Monster monster in FindObjectsOfType<Monster>())
             {
-                monsterIDs.Add(monster.monsterID);
+                if (monster.insideInventory && monster.type != "Baby")
+                {
+                    monsterIDs.Add(monster.monsterID);
+                }
             }
         }
-        FindObjectOfType<DatabaseManager>().SavePlayerData();
-        FindObjectOfType<DatabaseManager>().DebugSavedData();
-    }
-
-    public void LoadScanQRScene()
-    {
-        SceneManager.LoadScene("ScanQR");
-    }
-
-    public void LoadShowQRScene()
-    {
-        SceneManager.LoadScene("ShowQR");
     }
 }

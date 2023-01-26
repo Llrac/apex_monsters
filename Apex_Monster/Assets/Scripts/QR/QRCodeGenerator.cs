@@ -15,6 +15,7 @@ public class QRCodeGenerator : MonoBehaviour
 
     void Start()
     {
+        
         storedEncodedTexture = new Texture2D(256, 256);
         scanField.texture = storedEncodedTexture;
     }
@@ -22,7 +23,6 @@ public class QRCodeGenerator : MonoBehaviour
     public void EncodeTextToQRCode(string userID = null)
     {
         string writeText;
-        //string.IsNullOrEmpty(feedbackTextField.text) ? "missing QR code" : feedbackTextField.text;
 
         if (userID != null)
         {

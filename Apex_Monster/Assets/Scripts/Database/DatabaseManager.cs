@@ -13,11 +13,19 @@ public class SaveData
 public class DatabaseManager : MonoBehaviour
 {
     SaveData playerSaveData;
+    //Sprite[] possibleProfilePictures = new Sprite[10];
+
+    public void ResetPlayerData()
+    {
+        playerSaveData = new();
+    }
 
     public void SavePlayerData()
     {
-        playerSaveData = new();
+        if (playerSaveData == null) { ResetPlayerData(); }
+
         playerSaveData.monsterIDs = GetComponent<SceneNavigator>().monsterIDs;
+
         if (FindObjectOfType<ProfilePicture>() != null)
             playerSaveData.profilePicture = FindObjectOfType<ProfilePicture>().ppSprite;
     }
@@ -30,5 +38,10 @@ public class DatabaseManager : MonoBehaviour
             Debug.Log(monsterID);
         }
         Debug.Log(playerSaveData.profilePicture);
+    }
+
+    public void LoadSavedData()
+    {
+
     }
 }

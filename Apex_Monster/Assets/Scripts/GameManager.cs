@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    [HideInInspector] public bool sceneNavigated = false;
+
     public AnimationCurve positionDuringMergeCurve;
 
     public int universalSortingOrderID;

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class AudioManager : MonoBehaviour
 {
+    [HideInInspector] public bool sceneNavigated = false;
+
     [HideInInspector] public AudioSource backgroundMusicAS;
     [HideInInspector] public AudioSource battleMusicAS;
     [HideInInspector] public AudioSource sfxAS;
@@ -12,6 +14,7 @@ public class AudioManager : MonoBehaviour
     [Header("Background Music")]
     public AudioClip dropletsOfDew = null;
     public AudioClip shadesOfOrange = null;
+    public AudioClip anAutumn = null;
 
     [Header("Battle Music")]
     public AudioClip undeniable = null;
@@ -29,6 +32,9 @@ public class AudioManager : MonoBehaviour
     public float celebrateDelay = 1f;
     float celebrateTimer = 10;
 
+    int randomizedBackgroundOST;
+    List<AudioClip> backgroundOSTs = new();
+
     void Start()
     {
         nextPopSFX = mergePop1;
@@ -41,11 +47,7 @@ public class AudioManager : MonoBehaviour
                 if (child.name == "Background_Music")
                 {
                     backgroundMusicAS = child.gameObject.GetComponent<AudioSource>();
-                    if (shadesOfOrange != null)
-                    {
-                        backgroundMusicAS.clip = shadesOfOrange;
-                        backgroundMusicAS.Play();
-                    }
+                    PlayRandomBackgroundMusic();
                 }
                 else if (child.name == "Battle_Music")
                 {
@@ -70,6 +72,10 @@ public class AudioManager : MonoBehaviour
 
     void Update()
     {
+        if (!backgroundMusicAS.isPlaying)
+        {
+            PlayRandomBackgroundMusic();
+        }
         celebrateTimer += Time.deltaTime;
 
         if (playCelebration)
@@ -78,8 +84,34 @@ public class AudioManager : MonoBehaviour
             playCelebration = false;
         }
     }
+    
+    void PlayRandomBackgroundMusic()
+    {
+        if (backgroundOSTs.Count > 0)
+        {
+            PlayRemainingMusic();
+            return;
+        }
+        if (dropletsOfDew)
+            backgroundOSTs.Add(dropletsOfDew);
+        if (shadesOfOrange)
+            backgroundOSTs.Add(shadesOfOrange);
+        if (anAutumn)
+            backgroundOSTs.Add(anAutumn);
+        PlayRemainingMusic();
+    }
 
-    public void GetNextPopSFX()
+    void PlayRemainingMusic()
+    {
+        randomizedBackgroundOST = Random.Range(0, backgroundOSTs.Count - 1);
+
+        backgroundMusicAS.clip = backgroundOSTs[randomizedBackgroundOST];
+        backgroundMusicAS.Play();
+
+        backgroundOSTs.RemoveAt(randomizedBackgroundOST);
+    }
+
+    public void PlayPopSFX()
     {
         sfxAS.PlayOneShot(nextPopSFX);
         int randomPop = Random.Range(0, 1);

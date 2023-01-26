@@ -70,22 +70,7 @@ public class MonsterSpawner : MonoBehaviour
         switch (monster1.type)
         {
             case "Chieftain":
-                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
-                {
-                    SpawnUndead(0, monster1, monster2);
-                    return;
-                }
-                else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
-                {
-                    MonsterLevelUp(monster1, monster2, true);
-                    return;
-                }
-                else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike"))
-                {
-                    SpawnRandomBabies(3, monster2.transform.position.x, monster2.transform.position.y, false, true);
-                    monster2.Delete();
-                    return;
-                }
+                CheckSpecialCriteria(monster1, monster2, 0, 3);
                 break;
 
             case "Warrior":
@@ -96,79 +81,22 @@ public class MonsterSpawner : MonoBehaviour
                     monster2.Delete();
                     return;
                 }
-                else if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
+                else
                 {
-                    SpawnUndead(1, monster1, monster2);
-                    return;
-                }
-                else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
-                {
-                    MonsterLevelUp(monster1, monster2, true);
-                    return;
-                }
-                else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike"))
-                {
-                    SpawnRandomBabies(2, monster2.transform.position.x, monster2.transform.position.y, false, true);
-                    monster2.Delete();
-                    return;
+                    CheckSpecialCriteria(monster1, monster2, 1, 2);
                 }
                 break;
 
             case "Magic":
-                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
-                {
-                    SpawnUndead(2, monster1, monster2);
-                    return;
-                }
-                else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
-                {
-                    MonsterLevelUp(monster1, monster2, true);
-                    return;
-                }
-                else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
-                {
-                    SpawnRandomBabies(1, monster2.transform.position.x, monster2.transform.position.y, false, true);
-                    monster2.Delete();
-                    return;
-                }
+                CheckSpecialCriteria(monster1, monster2, 2);
                 break;
 
             case "Beast":
-                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
-                {
-                    SpawnUndead(3, monster1, monster2);
-                    return;
-                }
-                else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
-                {
-                    MonsterLevelUp(monster1, monster2, true);
-                    return;
-                }
-                else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
-                {
-                    SpawnRandomBabies(1, monster2.transform.position.x, monster2.transform.position.y, false, true);
-                    monster2.Delete();
-                    return;
-                }
+                CheckSpecialCriteria(monster1, monster2, 3);
                 break;
 
             case "Bird":
-                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
-                {
-                    SpawnUndead(4, monster1, monster2);
-                    return;
-                }
-                else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
-                {
-                    MonsterLevelUp(monster1, monster2, true);
-                    return;
-                }
-                else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
-                {
-                    SpawnRandomBabies(1, monster2.transform.position.x, monster2.transform.position.y, false, true);
-                    monster2.Delete();
-                    return;
-                }
+                CheckSpecialCriteria(monster1, monster2, 4);
                 break;
 
             case "Baby":
@@ -235,79 +163,19 @@ public class MonsterSpawner : MonoBehaviour
                 break;
 
             case "Boss":
-                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
-                {
-                    SpawnUndead(6, monster1, monster2);
-                    return;
-                }
-                else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
-                {
-                    MonsterLevelUp(monster1, monster2, true);
-                    return;
-                }
-                else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
-                {
-                    SpawnRandomBabies(1, monster2.transform.position.x, monster2.transform.position.y, false, true);
-                    monster2.Delete();
-                    return;
-                }
+                CheckSpecialCriteria(monster1, monster2, 6);
                 break;
 
             case "Flat":
-                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
-                {
-                    SpawnUndead(7, monster1, monster2);
-                    return;
-                }
-                else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
-                {
-                    MonsterLevelUp(monster1, monster2, true);
-                    return;
-                }
-                else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
-                {
-                    SpawnRandomBabies(1, monster2.transform.position.x, monster2.transform.position.y, false, true);
-                    monster2.Delete();
-                    return;
-                }
+                CheckSpecialCriteria(monster1, monster2, 7);
                 break;
 
             case "Bobble":
-                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
-                {
-                    SpawnUndead(8, monster1, monster2);
-                    return;
-                }
-                else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
-                {
-                    MonsterLevelUp(monster1, monster2, true);
-                    return;
-                }
-                else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
-                {
-                    SpawnRandomBabies(1, monster2.transform.position.x, monster2.transform.position.y, false, true);
-                    monster2.Delete();
-                    return;
-                }
+                CheckSpecialCriteria(monster1, monster2, 8);
                 break;
 
             case "Mounted":
-                if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
-                {
-                    SpawnUndead(9, monster1, monster2);
-                    return;
-                }
-                else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
-                {
-                    MonsterLevelUp(monster1, monster2, true);
-                    return;
-                }
-                else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike") && monster2.type == "Baby")
-                {
-                    SpawnRandomBabies(1, monster2.transform.position.x, monster2.transform.position.y, false, true);
-                    monster2.Delete();
-                    return;
-                }
+                CheckSpecialCriteria(monster1, monster2, 9);
                 break;
 
             default:
@@ -324,6 +192,26 @@ public class MonsterSpawner : MonoBehaviour
         if (!lastTry) // if there were no merges, try the other way and see if that merged anything
         {
             Merge(monster2, monster1, true);
+        }
+    }
+
+    private void CheckSpecialCriteria(Monster monster1, Monster monster2, int monsterType, int spawnBabiesAmount = 1)
+    {
+        if (!monster1.CompareTag("Undead") && monster2.CompareTag("Undead") && monster2.type == "Baby" && monster2.startSize == new Vector3(1, 1, 1))
+        {
+            SpawnUndead(monsterType, monster1, monster2);
+            return;
+        }
+        else if (monster1.CompareTag("Robotic") && monster2.CompareTag("Robotic") && monster2.type == "Baby")
+        {
+            MonsterLevelUp(monster1, monster2, true);
+            return;
+        }
+        else if (monster1.CompareTag("Farming") && monster2.CompareTag("Plantlike"))
+        {
+            SpawnRandomBabies(spawnBabiesAmount, monster2.transform.position.x, monster2.transform.position.y, false, true);
+            monster2.Delete();
+            return;
         }
     }
 
@@ -355,6 +243,7 @@ public class MonsterSpawner : MonoBehaviour
     {
         GameManager gm = FindObjectOfType<GameManager>();
         GameObject newMonster;
+
         newMonster = monsterID switch
         {
             // 01-10    BABIES
@@ -480,6 +369,7 @@ public class MonsterSpawner : MonoBehaviour
             // missing monsterID
             _ => Instantiate(gm.babies[0]),
         };
+
         if (randomizeSpawnPosition)
         {
             newMonster.transform.position = new Vector2(Random.Range(-gm.screenSize.x, gm.screenSize.x), Random.Range(-gm.screenSize.y, gm.screenSize.y));
@@ -761,6 +651,7 @@ public class MonsterSpawner : MonoBehaviour
         newUndead.GetComponent<Monster>().attack = monster1.attack + 1;
         newUndead.GetComponent<Monster>().startHealth = monster1.startHealth;
         newUndead.GetComponent<Monster>().startSize = monster1.startSize;
+        newUndead.GetComponent<Monster>().level = monster1.level;
         newUndead.transform.localScale = monster1.startSize;
         newUndead.transform.position = new Vector2(monster2.transform.position.x, monster2.transform.position.y);
         newUndead.GetComponent<Monster>().UpdateMonsterCanvas();
