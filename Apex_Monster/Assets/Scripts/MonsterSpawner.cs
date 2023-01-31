@@ -408,8 +408,6 @@ public class MonsterSpawner : MonoBehaviour
 
     void Celebrate(GameObject monster, GameObject infectorMonster = null)
     {
-        Debug.Log(monster.GetComponent<Monster>().attack + " " + monster.GetComponent<Monster>().startHealth);
-
         if (monster.CompareTag("Undead") && infectorMonster != null && infectorMonster.CompareTag("Undead"))
         {
             FindObjectOfType<AudioManager>().PlayCelebrate(monster.transform.position.x, monster.transform.position.y, true);

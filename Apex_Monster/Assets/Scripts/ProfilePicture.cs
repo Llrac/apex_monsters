@@ -5,7 +5,8 @@ using UnityEngine.UI;
 
 public class ProfilePicture : MonoBehaviour
 {
-    const string LAST_SPRITETAG = "spritetag";
+    public const string LAST_SPRITETAG = "spritetag";
+    [HideInInspector] public string spriteTag;
 
     public GameObject ppChooser;
     GameObject spriteObject = null;
@@ -29,6 +30,7 @@ public class ProfilePicture : MonoBehaviour
                 if (babySprite.CompareTag(PlayerPrefs.GetString(LAST_SPRITETAG)))
                 {
                     ppSprite = babySprite.sprite;
+                    spriteTag = PlayerPrefs.GetString(LAST_SPRITETAG);
                     break;
                 }
             }
@@ -40,6 +42,7 @@ public class ProfilePicture : MonoBehaviour
                 if (babySprite.CompareTag("Plantlike"))
                 {
                     ppSprite = babySprite.sprite;
+                    spriteTag = "Plantlike";
                     break;
                 }
             }
@@ -57,9 +60,10 @@ public class ProfilePicture : MonoBehaviour
     public void ChooseThisAsProfilePicture(GameObject newProfilePicture)
     {
         spriteObject.GetComponent<Image>().sprite = newProfilePicture.GetComponent<Image>().sprite;
-        ppSprite = spriteObject.GetComponent<Image>().sprite;
 
         PlayerPrefs.SetString(LAST_SPRITETAG, newProfilePicture.tag);
+        ppSprite = spriteObject.GetComponent<Image>().sprite;
+        spriteTag = PlayerPrefs.GetString(LAST_SPRITETAG);
 
         StopChoosingProfilePicture();
     }

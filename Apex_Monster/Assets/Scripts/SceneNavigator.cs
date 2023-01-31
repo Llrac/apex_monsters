@@ -10,7 +10,6 @@ public class SceneNavigator : MonoBehaviour
     Scene lastScene;
     AudioManager am;
     GameManager gm;
-    QRCodeGenerator QRcg;
 
     [HideInInspector] public List<int> monsterIDs = new();
 
@@ -37,21 +36,20 @@ public class SceneNavigator : MonoBehaviour
         }
         DontDestroyOnLoad(gameObject);
         Instance = this;
-        if (FindObjectOfType<AudioManager>() != null)
+
+        GetComponent<DatabaseManager>().OnSceneLoad();
+
+        if (FindObjectOfType<AudioManager>())
         {
             FindObjectOfType<AudioManager>().transform.SetParent(gameObject.transform);
             am = GetComponentInChildren<AudioManager>();
             am.sceneNavigated = true;
         }
-        if (FindObjectOfType<GameManager>() != null)
+        if (FindObjectOfType<GameManager>())
         {
             FindObjectOfType<GameManager>().transform.SetParent(gameObject.transform);
             gm = GetComponentInChildren<GameManager>();
             gm.sceneNavigated = true;
-        }
-        if (FindObjectOfType<QRCodeGenerator>() != null)
-        {
-            QRcg = FindObjectOfType<QRCodeGenerator>();
         }
     }
 
@@ -62,12 +60,16 @@ public class SceneNavigator : MonoBehaviour
             PlayerPrefs.DeleteAll();
             Debug.Log("deleted all keys");
         }
+        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.S))
+        {
+            FindObjectOfType<DatabaseManager>().SendMessage(FindObjectOfType<AccountSettings>().GetUserID, "browhat");
+        }
     }
 
     private void SaveAndDebugPlayerData()
     {
         GetComponent<DatabaseManager>().SavePlayerData();
-        GetComponent<DatabaseManager>().DebugSavedData();
+        GetComponent<DatabaseManager>().DebugSaveData();
     }
 
     public void LoadNextScene()

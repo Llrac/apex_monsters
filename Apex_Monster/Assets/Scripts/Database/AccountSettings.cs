@@ -22,6 +22,8 @@ public class AccountSettings : MonoBehaviour
     bool showingAccountSettings = true;
 
     FirebaseAuth auth;
+    //We often need our userID, create a easy way to get it.
+    public string GetUserID { get { return auth.CurrentUser.UserId; } }
 
     // Start is called before the first frame update
     void Start()
@@ -73,7 +75,7 @@ public class AccountSettings : MonoBehaviour
     {
         LoginFirebase(email.text, password.text);
         FindObjectOfType<DatabaseManager>().SavePlayerData();
-        FindObjectOfType<DatabaseManager>().DebugSavedData();
+        FindObjectOfType<DatabaseManager>().DebugSaveData();
     }
 
     private void LoginFirebase(string email, string password)

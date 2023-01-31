@@ -336,6 +336,14 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 957280722}
+    - target: {fileID: 329353300, guid: 5c12dd21e1addb94e8cfc87c28fb8620, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 931b2589227dae84bbabcd02850a9387, type: 2}
+    - target: {fileID: 329353300, guid: 5c12dd21e1addb94e8cfc87c28fb8620, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 6843682058787704621, guid: 931b2589227dae84bbabcd02850a9387, type: 2}
     - target: {fileID: 7126121596488987044, guid: 5c12dd21e1addb94e8cfc87c28fb8620, type: 3}
       propertyPath: m_Pivot.x
       value: 0

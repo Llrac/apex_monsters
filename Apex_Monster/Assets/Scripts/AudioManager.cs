@@ -72,16 +72,17 @@ public class AudioManager : MonoBehaviour
 
     void Update()
     {
-        if (!backgroundMusicAS.isPlaying)
-        {
-            PlayRandomBackgroundMusic();
-        }
         celebrateTimer += Time.deltaTime;
 
         if (playCelebration)
         {
             PlayCelebrate();
             playCelebration = false;
+        }
+
+        if (backgroundMusicAS.gameObject.activeSelf && !backgroundMusicAS.isPlaying)
+        {
+            PlayRandomBackgroundMusic();
         }
     }
     

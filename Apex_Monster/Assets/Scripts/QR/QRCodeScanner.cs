@@ -17,8 +17,15 @@ public class QRCodeScanner : MonoBehaviour
 
     void Start()
     {
-        InvokeRepeating(nameof(Scan), 0.5f, 0.5f);
         InvokeRepeating(nameof(UpdateCameraRender), 0.5f, 0.5f);
+        InvokeRepeating(nameof(Scan), 0.5f, 0.5f);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (_cameraTexture == null)
+            LookForCamera();
     }
 
     void LookForCamera()
@@ -47,13 +54,6 @@ public class QRCodeScanner : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (_cameraTexture == null)
-            LookForCamera();
-    }
-
     void UpdateCameraRender()
     {
         if (!_isCamAvailable)
@@ -65,11 +65,6 @@ public class QRCodeScanner : MonoBehaviour
 
         int orientation = -_cameraTexture.videoRotationAngle;
         _rawImageBackground.rectTransform.localEulerAngles = new Vector3(0, 0, orientation);
-    }
-
-    public void OnClickScan()
-    {
-        //Scan();
     }
 
     void Scan()
