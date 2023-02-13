@@ -2,11 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 public class ProfilePicture : MonoBehaviour
 {
-    public const string LAST_SPRITETAG = "spritetag";
+    public string SpriteTag
+    {
+        get { return PlayerPrefs.GetString(LAST_SPRITETAG); }
+        set { PlayerPrefs.SetString(LAST_SPRITETAG, value); }
+    }
     [HideInInspector] public string spriteTag;
+    const string LAST_SPRITETAG = "spritetag";
 
     public GameObject ppChooser;
     GameObject spriteObject = null;
@@ -25,26 +31,20 @@ public class ProfilePicture : MonoBehaviour
         StartChoosingProfilePicture(); // without this call we cannot find babySprite
         if (PlayerPrefs.HasKey(LAST_SPRITETAG) && PlayerPrefs.GetString(LAST_SPRITETAG) != "spritetag")
         {
-            foreach (Image babySprite in FindObjectsOfType<Image>())
+            foreach (Image babySprite in FindObjectsOfType<Image>().Where(a => a.CompareTag(PlayerPrefs.GetString(LAST_SPRITETAG))))
             {
-                if (babySprite.CompareTag(PlayerPrefs.GetString(LAST_SPRITETAG)))
-                {
-                    ppSprite = babySprite.sprite;
-                    spriteTag = PlayerPrefs.GetString(LAST_SPRITETAG);
-                    break;
-                }
+                ppSprite = babySprite.sprite;
+                spriteTag = PlayerPrefs.GetString(LAST_SPRITETAG);
+                break;
             }
         }
         else
         {
-            foreach (Image babySprite in FindObjectsOfType<Image>())
+            foreach (Image babySprite in FindObjectsOfType<Image>().Where(a => a.CompareTag("Plantlike")))
             {
-                if (babySprite.CompareTag("Plantlike"))
-                {
-                    ppSprite = babySprite.sprite;
-                    spriteTag = "Plantlike";
-                    break;
-                }
+                ppSprite = babySprite.sprite;
+                spriteTag = "Plantlike";
+                break;
             }
         }
         StopChoosingProfilePicture();
@@ -61,11 +61,13 @@ public class ProfilePicture : MonoBehaviour
     {
         spriteObject.GetComponent<Image>().sprite = newProfilePicture.GetComponent<Image>().sprite;
 
-        PlayerPrefs.SetString(LAST_SPRITETAG, newProfilePicture.tag);
         ppSprite = spriteObject.GetComponent<Image>().sprite;
+        PlayerPrefs.SetString(LAST_SPRITETAG, newProfilePicture.tag);
         spriteTag = PlayerPrefs.GetString(LAST_SPRITETAG);
 
         StopChoosingProfilePicture();
+
+        FindObjectOfType<DatabaseManager>().SaveUserData();
     }
 
     public void StopChoosingProfilePicture()

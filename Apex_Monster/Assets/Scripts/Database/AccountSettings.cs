@@ -3,27 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using Firebase.Auth;
 using Firebase;
+using Firebase.Auth;
 using Firebase.Extensions;
 
 public class AccountSettings : MonoBehaviour
 {
+    const string LAST_NAME = "name";
     const string LAST_EMAIL = "email";
     const string LAST_PASSWORD = "password";
 
     public Sprite[] sprites = new Sprite[3];
 
+    public TMP_InputField username;
     public TMP_InputField email;
     public TMP_InputField password;
     public TextMeshProUGUI feedbackText;
     [SerializeField] RawImage scanField;
 
     bool showingAccountSettings = true;
-
-    FirebaseAuth auth;
-    //We often need our userID, create a easy way to get it.
-    public string GetUserID { get { return auth.CurrentUser.UserId; } }
 
     // Start is called before the first frame update
     void Start()
@@ -33,16 +31,19 @@ public class AccountSettings : MonoBehaviour
             if (task.Exception != null)
                 Debug.LogError(task.Exception);
 
-            auth = FirebaseAuth.DefaultInstance;
-            if (PlayerPrefs.HasKey(LAST_EMAIL) && PlayerPrefs.GetString(LAST_EMAIL) != "email" &&
+            if (PlayerPrefs.HasKey(LAST_NAME) && PlayerPrefs.GetString(LAST_NAME) != "name" &&
+                PlayerPrefs.HasKey(LAST_EMAIL) && PlayerPrefs.GetString(LAST_EMAIL) != "email" &&
                 PlayerPrefs.HasKey(LAST_PASSWORD) && PlayerPrefs.GetString(LAST_PASSWORD) != "password")
             {
+                username.text = PlayerPrefs.GetString(LAST_NAME);
                 email.text = PlayerPrefs.GetString(LAST_EMAIL);
                 password.text = PlayerPrefs.GetString(LAST_PASSWORD);
+                LoginFirebase(username.text, email.text, password.text);
             }
         });
     }
 
+    #region AS_Toggler
     public void OnHoverEnter(GameObject button)
     {
         button.GetComponent<Image>().sprite = sprites[1];
@@ -70,42 +71,17 @@ public class AccountSettings : MonoBehaviour
             gameObject.SetActive(true);
         }
     }
-
-    public void LoginButton()
-    {
-        LoginFirebase(email.text, password.text);
-        FindObjectOfType<DatabaseManager>().SavePlayerData();
-        FindObjectOfType<DatabaseManager>().DebugSaveData();
-    }
-
-    private void LoginFirebase(string email, string password)
-    {
-        auth.SignInWithEmailAndPasswordAsync(email, password).ContinueWithOnMainThread(task =>
-        {
-            if (task.Exception != null)
-            {
-                Debug.LogWarning(task.Exception);
-            }
-            else
-            {
-                FirebaseUser newUser = task.Result;
-                Debug.LogFormat("User signed in successfully: {0} ({1})",
-                  newUser.DisplayName, newUser.UserId);
-                feedbackText.text = newUser.Email + "is signed in";
-                FindObjectOfType<QRCodeGenerator>().EncodeTextToQRCode(newUser.UserId);
-            }
-        });
-    }
+    #endregion
 
     public void RegisterButton()
     {
-        RegisterNewUser(email.text, password.text);
+        RegisterNewUser(username.text, email.text, password.text);
     }
 
-    private void RegisterNewUser(string email, string password)
+    private void RegisterNewUser(string username, string email, string password)
     {
-        Debug.Log("Starting Registration");
         feedbackText.text = "Starting Registration";
+        FirebaseAuth auth = FirebaseAuth.DefaultInstance;
         auth.CreateUserWithEmailAndPasswordAsync(email, password).ContinueWithOnMainThread(task =>
         {
             if (task.Exception != null)
@@ -115,25 +91,60 @@ public class AccountSettings : MonoBehaviour
             else
             {
                 FirebaseUser newUser = task.Result;
-                Debug.LogFormat("User registered: {0} ({1})",
-                  newUser.DisplayName, newUser.UserId);
+                Debug.Log(username + ", your account has been created");
 
-                // set scanfield color 100%
-
+                PlayerPrefs.SetString(LAST_NAME, username);
                 PlayerPrefs.SetString(LAST_EMAIL, email);
                 PlayerPrefs.SetString(LAST_PASSWORD, password);
+
+                FindObjectOfType<DatabaseManager>().SaveUserData();
+            }
+        });
+    }
+
+    public void LoginButton()
+    {
+        LoginFirebase(username.text, email.text, password.text);
+    }
+
+    private void LoginFirebase(string username, string email, string password)
+    {
+        FindObjectOfType<DatabaseManager>().SaveUserData();
+
+        FirebaseAuth auth = FirebaseAuth.DefaultInstance;
+        auth.SignInWithEmailAndPasswordAsync(email, password).ContinueWithOnMainThread(task =>
+        {
+            if (task.Exception != null)
+            {
+                Debug.LogWarning(task.Exception);
+            }
+            else
+            {
+                FirebaseUser newUser = task.Result;
+                Debug.Log(username + " has logged in");
+
+                PlayerPrefs.SetString(LAST_NAME, username);
+                PlayerPrefs.SetString(LAST_EMAIL, email);
+                PlayerPrefs.SetString(LAST_PASSWORD, password);
+
+                this.username.text = username;
+                this.email.text = email;
+                this.password.text = password;
+
+                FindObjectOfType<QRCodeGenerator>().EncodeTextToQRCode(newUser.UserId);
+                FindObjectOfType<DatabaseManager>().LoadUserData();
             }
         });
     }
 
     public void DebugRegister(int number)
     {
-        RegisterNewUser("test" + number + "@test.test", "Password" + number);
+        RegisterNewUser("test" + number, "test" + number + "@test.test", "Pswrd" + number);
     }
 
     public void DebugLogIn(int number)
     {
-        LoginFirebase("test" + number + "@test.test", "Password" + number);
+        LoginFirebase("test" + number, "test" + number + "@test.test", "Pswrd" + number);
     }
 
     public void DebugRemoveAccount(int number)

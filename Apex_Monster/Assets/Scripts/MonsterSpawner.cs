@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class MonsterSpawner : MonoBehaviour
 {
+    [HideInInspector] public bool sceneNavigated = false;
+
     public GameObject monsterCanvas;
 
     [Header("Debug: Spawn Monster Baby")]

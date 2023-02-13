@@ -190,17 +190,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &957280722 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 957280722, guid: d0e9d6040c936dc4e84f3ceef067810a, type: 3}
-  m_PrefabInstance: {fileID: 3097970244047958860}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e1131387a81713448950a4f9dc8816af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!20 &1846206459 stripped
 Camera:
   m_CorrespondingSourceObject: {fileID: 161858697868542052, guid: c8174bfe66b55124bba40669cbdd4ae2, type: 3}
@@ -333,9 +322,25 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 278995258, guid: 5c12dd21e1addb94e8cfc87c28fb8620, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 278995258, guid: 5c12dd21e1addb94e8cfc87c28fb8620, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 957280722}
+      objectReference: {fileID: 957280722, guid: d0e9d6040c936dc4e84f3ceef067810a, type: 3}
+    - target: {fileID: 278995258, guid: 5c12dd21e1addb94e8cfc87c28fb8620, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: LoadScene
+      objectReference: {fileID: 0}
+    - target: {fileID: 278995258, guid: 5c12dd21e1addb94e8cfc87c28fb8620, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: SceneNavigator, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 278995258, guid: 5c12dd21e1addb94e8cfc87c28fb8620, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
+      value: BattleMonsters
+      objectReference: {fileID: 0}
     - target: {fileID: 329353300, guid: 5c12dd21e1addb94e8cfc87c28fb8620, type: 3}
       propertyPath: m_fontAsset
       value: 

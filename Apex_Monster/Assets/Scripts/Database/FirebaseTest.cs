@@ -20,7 +20,7 @@ public class FirebaseTest : MonoBehaviour
 
     void Start()
     {
-        savePosition = new SavePosition();
+        savePosition = new();
 
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
         {

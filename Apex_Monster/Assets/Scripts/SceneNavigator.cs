@@ -2,14 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 public class SceneNavigator : MonoBehaviour
 {
     public static SceneNavigator Instance { get; set; }
 
-    Scene lastScene;
+    //Scene lastScene;
     AudioManager am;
     GameManager gm;
+    MonsterSpawner ms;
 
     [HideInInspector] public List<int> monsterIDs = new();
 
@@ -17,27 +19,14 @@ public class SceneNavigator : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            foreach (AudioManager audioManager in FindObjectsOfType<AudioManager>())
-            {
-                if (!audioManager.sceneNavigated)
-                {
-                    Destroy(audioManager.gameObject);
-                }
-            }
-            foreach (GameManager gameManager in FindObjectsOfType<GameManager>())
-            {
-                if (!gameManager.sceneNavigated)
-                {
-                    Destroy(gameManager.gameObject);
-                }
-            }
+            foreach (var item in FindObjectsOfType<AudioManager>().Where(am => !am.sceneNavigated)) { Destroy(item.gameObject); }
+            foreach (var item in FindObjectsOfType<GameManager>().Where(gm => !gm.sceneNavigated)) { Destroy(item.gameObject); }
+            foreach (var item in FindObjectsOfType<MonsterSpawner>().Where(ms => !ms.sceneNavigated)) { Destroy(item.gameObject); }
             Destroy(gameObject);
             return;
         }
         DontDestroyOnLoad(gameObject);
         Instance = this;
-
-        GetComponent<DatabaseManager>().OnSceneLoad();
 
         if (FindObjectOfType<AudioManager>())
         {
@@ -51,6 +40,12 @@ public class SceneNavigator : MonoBehaviour
             gm = GetComponentInChildren<GameManager>();
             gm.sceneNavigated = true;
         }
+        if (FindObjectOfType<MonsterSpawner>())
+        {
+            FindObjectOfType<MonsterSpawner>().transform.SetParent(gameObject.transform);
+            ms = GetComponentInChildren<MonsterSpawner>();
+            ms.sceneNavigated = true;
+        }
     }
 
     void Update()
@@ -60,36 +55,22 @@ public class SceneNavigator : MonoBehaviour
             PlayerPrefs.DeleteAll();
             Debug.Log("deleted all keys");
         }
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.S))
-        {
-            FindObjectOfType<DatabaseManager>().SendMessage(FindObjectOfType<AccountSettings>().GetUserID, "browhat");
-        }
-    }
-
-    private void SaveAndDebugPlayerData()
-    {
-        GetComponent<DatabaseManager>().SavePlayerData();
-        GetComponent<DatabaseManager>().DebugSaveData();
-    }
-
-    public void LoadNextScene()
-    {
-        lastScene = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(lastScene.buildIndex + 1);
-
-        PrepareValuesForScene("BattleMonsters");
-        SaveAndDebugPlayerData();
+        //if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.S))
+        //{
+        //    FindObjectOfType<DatabaseManager>().SendMessage(FindObjectOfType<AccountSettings>().GetUserID, "got message");
+        //}
     }
 
     public void LoadScene(string sceneName)
     {
         SceneManager.LoadScene(sceneName);
 
-        PrepareValuesForScene(sceneName);
-        SaveAndDebugPlayerData();
+        GetDataForScene(sceneName);
+
+        GetComponent<DatabaseManager>().SaveUserData();
     }
 
-    void PrepareValuesForScene(string sceneName)
+    void GetDataForScene(string sceneName)
     {
         if (sceneName == "ShowQR")
         {
@@ -97,9 +78,9 @@ public class SceneNavigator : MonoBehaviour
         }
         else if (sceneName == "ScanQR")
         {
-            //
+            
         }
-        else if (sceneName == "ShowOpponent")
+        else if (sceneName == "ShowUsers")
         {
             // get playerName and profilePicture from ShowQR so that both players see each other's names and pictures
         }
@@ -111,14 +92,10 @@ public class SceneNavigator : MonoBehaviour
         {
             // get monsters from MyMonsters that you will go to battle with
             if (FindObjectOfType<Monster>() == null) { return; }
-
             monsterIDs.Clear();
-            foreach (Monster monster in FindObjectsOfType<Monster>())
+            foreach (Monster monster in FindObjectsOfType<Monster>().Where(m => m.GetComponent<Monster>().insideInventory && m.GetComponent<Monster>().type != "Baby"))
             {
-                if (monster.insideInventory && monster.type != "Baby")
-                {
-                    monsterIDs.Add(monster.monsterID);
-                }
+                monsterIDs.Add(monster.monsterID);
             }
         }
     }

@@ -17,7 +17,7 @@ public class QRCodeScanner : MonoBehaviour
 
     void Start()
     {
-        InvokeRepeating(nameof(UpdateCameraRender), 0.5f, 0.5f);
+        //InvokeRepeating(nameof(UpdateCameraRender), 0.5f, 0.5f);
         InvokeRepeating(nameof(Scan), 0.5f, 0.5f);
     }
 
@@ -25,7 +25,13 @@ public class QRCodeScanner : MonoBehaviour
     void Update()
     {
         if (_cameraTexture == null)
+        {
             LookForCamera();
+        }
+        else
+        {
+            UpdateCameraRender();
+        }
     }
 
     void LookForCamera()
@@ -60,7 +66,7 @@ public class QRCodeScanner : MonoBehaviour
         {
             return;
         }
-        float ratio = (float)_cameraTexture.width / (float)_cameraTexture.height;
+        float ratio = _cameraTexture.width / (float)_cameraTexture.height;
         _aspectRatioFitter.aspectRatio = ratio;
 
         int orientation = -_cameraTexture.videoRotationAngle;

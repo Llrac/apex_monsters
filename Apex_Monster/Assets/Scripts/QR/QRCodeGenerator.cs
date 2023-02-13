@@ -9,6 +9,7 @@ using TMPro;
 public class QRCodeGenerator : MonoBehaviour
 {
     const string LAST_QRCODE = "code";
+    [HideInInspector] public string gameCode;
 
     [SerializeField] TextMeshProUGUI feedbackTextField;
     [SerializeField] RawImage scanField;
@@ -33,21 +34,24 @@ public class QRCodeGenerator : MonoBehaviour
         if (userID != null)
         {
             writeText = userID;
+            gameCode = writeText + " : " + Random.Range(100000, 999999).ToString();
         }
         else
         {
-            writeText = Random.Range(100000, 999999).ToString();
+            Debug.LogError("no code string to encode");
+            return;
         }
 
         feedbackTextField.text = writeText;
 
-        Color32[] convertPixelsToTexture = Encode(writeText, storedEncodedTexture.width, storedEncodedTexture.height);
+        Color32[] convertPixelsToTexture = Encode(gameCode, storedEncodedTexture.width, storedEncodedTexture.height);
         storedEncodedTexture.SetPixels32(convertPixelsToTexture);
         storedEncodedTexture.Apply();
-
         scanField.texture = storedEncodedTexture;
 
         PlayerPrefs.SetString(LAST_QRCODE, writeText);
+
+        FindObjectOfType<DatabaseManager>().SaveGameData();
     }
 
     Color32[] Encode(string textForEncoding, int width, int height)
