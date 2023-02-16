@@ -10,15 +10,17 @@ using Firebase.Extensions;
 [Serializable]
 public class UserData
 {
-    public List<int> monsterIDs;
     public string username;
     public string ppSpriteTag;
+    public List<int> monsterIDs; // crucial info for gameplay
 }
 
 [Serializable]
 public class GameData
 {
     public string gameID;
+    public string hostUserID; // user who shows QR
+    public string clientUserID; // user who scans QR
 }
 
 public class DatabaseManager : MonoBehaviour
@@ -33,8 +35,6 @@ public class DatabaseManager : MonoBehaviour
     FirebaseAuth auth;
 
     public delegate void OnLoadedDelegate(DataSnapshot snapshot);
-    public delegate void OnLoadedDelegate<T>(T data);
-    public delegate void OnLoadedMultipleDelegate<T>(List<T> data);
     public delegate void OnSaveDelegate();
 
     public void GetDatabase()
@@ -47,33 +47,25 @@ public class DatabaseManager : MonoBehaviour
     public void ResetUserData() { userData = new(); }
     public void ResetGameData() { gameData = new(); }
 
-    void PushData(string path, string data, OnSaveDelegate onSaveDelegate = null)
-    {
-        GetDatabase();
-        db.RootReference.Child(path).Push().SetRawJsonValueAsync(data).ContinueWithOnMainThread(task =>
-        {
-            if (task.Exception != null)
-                Debug.LogWarning(task.Exception);
+    //void PushData(string path, string data, OnSaveDelegate onSaveDelegate = null)
+    //{
+    //    GetDatabase();
+    //    db.RootReference.Child(path).Push().SetRawJsonValueAsync(data).ContinueWithOnMainThread(task =>
+    //    {
+    //        if (task.Exception != null)
+    //            Debug.LogWarning(task.Exception);
 
-            //Call our delegate if it's not null
-            onSaveDelegate?.Invoke();
-        });
-    }
+    //        //Call our delegate if it's not null
+    //        onSaveDelegate?.Invoke();
+    //    });
+    //}
 
-    void SaveData(string path, string data, OnSaveDelegate onSaveDelegate = null)
-    {
-        GetDatabase();
-        db.RootReference.Child(path).Child(GetUserID).SetRawJsonValueAsync(data).ContinueWithOnMainThread(task =>
-        {
-            if (task.Exception != null)
-                Debug.LogWarning(task.Exception);
+    //void SaveData(string path, string data, OnSaveDelegate onSaveDelegate = null)
+    //{
+        
+    //}
 
-            //Call our delegate if it's not null
-            onSaveDelegate?.Invoke();
-        });
-    }
-
-    public void SaveUserData()
+    public void UpdateUserData()
     {
         if (userData == null) { ResetUserData(); }
 
@@ -85,22 +77,40 @@ public class DatabaseManager : MonoBehaviour
         if (FindObjectOfType<AccountSettings>())
             userData.username = FindObjectOfType<AccountSettings>().username.text;
 
-        string jsonSaveData = JsonUtility.ToJson(userData);
-        SaveData("users", jsonSaveData);
+        GetDatabase();
+        db.RootReference.Child("users").Child(GetUserID).SetRawJsonValueAsync(JsonUtility.ToJson(userData)).ContinueWithOnMainThread(task =>
+        {
+            if (task.Exception != null)
+                Debug.LogWarning(task.Exception);
+
+            //Call our delegate if it's not null
+            //onSaveDelegate?.Invoke();
+        });
     }
 
-    public void SaveGameData()
+    public void UpdateGameData(string gameID)
     {
         if (gameData == null) { ResetGameData(); }
 
-        if (FindObjectOfType<QRCodeGenerator>())
+        GetDatabase();
+        gameData.gameID = gameID;
+        if (FindObjectOfType<QRCodeGenerator>()) // user is host
         {
-            gameData.gameID = FindObjectOfType<QRCodeGenerator>().gameCode;
-            Debug.Log(gameData.gameID);
+            gameData.hostUserID = GetUserID;
+        }
+        else if (FindObjectOfType<QRCodeScanner>()) // user is client
+        {
+            gameData.clientUserID = GetUserID;
         }
 
-        string jsonSaveData = JsonUtility.ToJson(gameData);
-        SaveData("games", jsonSaveData);
+        db.RootReference.Child("games").Child(gameData.gameID).SetRawJsonValueAsync(JsonUtility.ToJson(gameData)).ContinueWithOnMainThread(task =>
+        {
+            if (task.Exception != null)
+                Debug.LogWarning(task.Exception);
+
+            //Call our delegate if it's not null
+            //onSaveDelegate?.Invoke();
+        });
     }
 
     void LoadData(string path, OnLoadedDelegate onLoadedDelegate)
@@ -116,6 +126,20 @@ public class DatabaseManager : MonoBehaviour
         });
     }
 
+    public void JoinGame(string gameID)
+    {
+        UpdateGameData(gameID);
+        //LoadData("games/" + gameID, OnLoadedGameData);
+    }
+
+    //public void JoinTestGame(int number)
+    //{
+    //    if (number == 1)
+    //        LoadData("games/TVCryXjrNIZdbvvAewW7ybTk28H3", OnLoadedGameData);
+    //    else if (number == 2)
+    //        LoadData("games/xgBJKkDOaPfdX16ERnZDlAk98Ai1", OnLoadedGameData);
+    //}
+
     public void LoadUserData()
     {
         LoadData("users/" + GetUserID, OnLoadedUserData);
@@ -123,29 +147,20 @@ public class DatabaseManager : MonoBehaviour
 
     public void LoadGameData()
     {
-        LoadData("games/" + GetUserID, OnLoadedGameData);
-    }
-
-    public void LoadTestGameData(string number)
-    {
-        if (number == "1")
-            LoadData("games/TVCryXjrNIZdbvvAewW7ybTk28H3", OnLoadedGameData);
-        else if (number == "2")
-            LoadData("games/xgBJKkDOaPfdX16ERnZDlAk98Ai1", OnLoadedGameData);
-
+        LoadData("games/" + gameData.gameID, OnLoadedGameData);
     }
 
     void OnLoadedUserData(DataSnapshot snap)
     {
         Debug.Log(snap.GetRawJsonValue());
-        var loadedUserData = JsonUtility.FromJson<UserData>(snap.GetRawJsonValue());
+        var loadedData = JsonUtility.FromJson<UserData>(snap.GetRawJsonValue());
 
         if (FindObjectOfType<ProfilePicture>()) // if we need profile picture, use it
         {
             ProfilePicture pp = FindObjectOfType<ProfilePicture>();
             foreach (GameObject baby in FindObjectOfType<GameManager>().babies)
             {
-                if (!baby.CompareTag(loadedUserData.ppSpriteTag)) { continue; }
+                if (!baby.CompareTag(loadedData.ppSpriteTag)) { continue; }
                 foreach (Transform child in pp.transform)
                 {
                     if (child.name != "Sprite") { continue; }
@@ -165,8 +180,8 @@ public class DatabaseManager : MonoBehaviour
 
     void OnLoadedGameData(DataSnapshot snap)
     {
-        Debug.Log(snap.GetRawJsonValue()); // reads the raw json code
-        var loadedGameData = JsonUtility.FromJson<GameData>(snap.GetRawJsonValue()); // gets the GameData from Database
+        Debug.Log(snap.GetRawJsonValue());
+        var loadedData = JsonUtility.FromJson<GameData>(snap.GetRawJsonValue());
 
     }
 

@@ -21,8 +21,6 @@ public class AccountSettings : MonoBehaviour
     public TextMeshProUGUI feedbackText;
     [SerializeField] RawImage scanField;
 
-    bool showingAccountSettings = true;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -43,7 +41,7 @@ public class AccountSettings : MonoBehaviour
         });
     }
 
-    #region AS_Toggler
+    #region Debug Toggler
     public void OnHoverEnter(GameObject button)
     {
         button.GetComponent<Image>().sprite = sprites[1];
@@ -57,19 +55,7 @@ public class AccountSettings : MonoBehaviour
     public void OnClick(GameObject button)
     {
         button.GetComponent<Image>().sprite = sprites[2];
-
-        if (showingAccountSettings) // hide account settings
-        {
-            showingAccountSettings = false;
-
-            gameObject.SetActive(false);
-        }
-        else // show account settings
-        {
-            showingAccountSettings = true;
-
-            gameObject.SetActive(true);
-        }
+        FindObjectOfType<SceneNavigator>().ToggleDebugging();
     }
     #endregion
 
@@ -80,8 +66,15 @@ public class AccountSettings : MonoBehaviour
 
     private void RegisterNewUser(string username, string email, string password)
     {
-        feedbackText.text = "Starting Registration";
+        Debug.Log("registering...");
         FirebaseAuth auth = FirebaseAuth.DefaultInstance;
+        auth.FetchProvidersForEmailAsync(email).ContinueWithOnMainThread(task =>
+        {
+            if (task.Exception != null)
+            {
+                Debug.Log("fetched account: " + email);
+            }
+        });
         auth.CreateUserWithEmailAndPasswordAsync(email, password).ContinueWithOnMainThread(task =>
         {
             if (task.Exception != null)
@@ -97,7 +90,7 @@ public class AccountSettings : MonoBehaviour
                 PlayerPrefs.SetString(LAST_EMAIL, email);
                 PlayerPrefs.SetString(LAST_PASSWORD, password);
 
-                FindObjectOfType<DatabaseManager>().SaveUserData();
+                FindObjectOfType<DatabaseManager>().UpdateUserData();
             }
         });
     }
@@ -107,9 +100,19 @@ public class AccountSettings : MonoBehaviour
         LoginFirebase(username.text, email.text, password.text);
     }
 
+    public void DebugRegister(int number)
+    {
+        RegisterNewUser("test" + number, "test" + number + "@test.test", "Pswrd" + number);
+    }
+
+    public void DebugLogIn(int number)
+    {
+        LoginFirebase("test" + number, "test" + number + "@test.test", "Pswrd" + number);
+    }
+
     private void LoginFirebase(string username, string email, string password)
     {
-        FindObjectOfType<DatabaseManager>().SaveUserData();
+        FindObjectOfType<DatabaseManager>().UpdateUserData();
 
         FirebaseAuth auth = FirebaseAuth.DefaultInstance;
         auth.SignInWithEmailAndPasswordAsync(email, password).ContinueWithOnMainThread(task =>
@@ -135,16 +138,6 @@ public class AccountSettings : MonoBehaviour
                 FindObjectOfType<DatabaseManager>().LoadUserData();
             }
         });
-    }
-
-    public void DebugRegister(int number)
-    {
-        RegisterNewUser("test" + number, "test" + number + "@test.test", "Pswrd" + number);
-    }
-
-    public void DebugLogIn(int number)
-    {
-        LoginFirebase("test" + number, "test" + number + "@test.test", "Pswrd" + number);
     }
 
     public void DebugRemoveAccount(int number)

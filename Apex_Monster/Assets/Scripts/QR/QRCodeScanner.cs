@@ -17,7 +17,6 @@ public class QRCodeScanner : MonoBehaviour
 
     void Start()
     {
-        //InvokeRepeating(nameof(UpdateCameraRender), 0.5f, 0.5f);
         InvokeRepeating(nameof(Scan), 0.5f, 0.5f);
     }
 
@@ -82,6 +81,9 @@ public class QRCodeScanner : MonoBehaviour
             if (result != null)
             {
                 _textOut.text = result.Text;
+
+                // do matchmaking here
+                FindObjectOfType<DatabaseManager>().JoinGame(result.Text);
             }
             else
             {

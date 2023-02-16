@@ -67,7 +67,7 @@ public class ProfilePicture : MonoBehaviour
 
         StopChoosingProfilePicture();
 
-        FindObjectOfType<DatabaseManager>().SaveUserData();
+        FindObjectOfType<DatabaseManager>().UpdateUserData();
     }
 
     public void StopChoosingProfilePicture()
