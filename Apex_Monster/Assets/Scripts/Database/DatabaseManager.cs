@@ -11,7 +11,7 @@ using Firebase.Extensions;
 public class UserData
 {
     public string username;
-    public string ppSpriteTag;
+    public string profilePictureSpriteTag;
     public List<int> monsterIDs; // crucial info for gameplay
 }
 
@@ -72,7 +72,7 @@ public class DatabaseManager : MonoBehaviour
         userData.monsterIDs = GetComponent<SceneNavigator>().monsterIDs;
 
         if (FindObjectOfType<ProfilePicture>())
-            userData.ppSpriteTag = FindObjectOfType<ProfilePicture>().spriteTag;
+            userData.profilePictureSpriteTag = FindObjectOfType<ProfilePicture>().spriteTag;
 
         if (FindObjectOfType<AccountSettings>())
             userData.username = FindObjectOfType<AccountSettings>().username.text;
@@ -160,7 +160,7 @@ public class DatabaseManager : MonoBehaviour
             ProfilePicture pp = FindObjectOfType<ProfilePicture>();
             foreach (GameObject baby in FindObjectOfType<GameManager>().babies)
             {
-                if (!baby.CompareTag(loadedData.ppSpriteTag)) { continue; }
+                if (!baby.CompareTag(loadedData.profilePictureSpriteTag)) { continue; }
                 foreach (Transform child in pp.transform)
                 {
                     if (child.name != "Sprite") { continue; }

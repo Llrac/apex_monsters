@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CursorScript : UsefulVariableClass
+public class CursorScript : MonoBehaviour
 {
     [SerializeField] Sprite dragSprite = null;
     Sprite defaultSprite;
