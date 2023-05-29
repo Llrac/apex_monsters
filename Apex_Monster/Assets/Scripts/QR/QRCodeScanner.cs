@@ -82,7 +82,6 @@ public class QRCodeScanner : MonoBehaviour
             {
                 _textOut.text = result.Text;
 
-                // do matchmaking here
                 FindObjectOfType<DatabaseManager>().JoinGame(result.Text);
             }
             else

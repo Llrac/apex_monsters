@@ -8,19 +8,29 @@ using Firebase.Database;
 using Firebase.Extensions;
 
 [Serializable]
-public class UserData
+public class GameData
 {
-    public string username;
-    public string profilePictureSpriteTag;
-    public List<int> monsterIDs; // crucial info for gameplay
+    public int gameProgress = 0;
+
+    // user who shows QR
+    public string hostUserID;
+    public string hostUsername;
+    public string hostSpriteTag;
+    public List<int> hostMonsterIDs;
+
+    // user who scans QR
+    public string clientUserID;
+    public string clientUsername;
+    public string clientSpriteTag;
+    public List<int> clientMonsterIDs;
 }
 
 [Serializable]
-public class GameData
+public class UserData
 {
-    public string gameID;
-    public string hostUserID; // user who shows QR
-    public string clientUserID; // user who scans QR
+    public string username;
+    public string ppSpriteTag;
+    public List<int> monsterIDs; // crucial *gameplay* info
 }
 
 public class DatabaseManager : MonoBehaviour
@@ -37,6 +47,9 @@ public class DatabaseManager : MonoBehaviour
     public delegate void OnLoadedDelegate(DataSnapshot snapshot);
     public delegate void OnSaveDelegate();
 
+    public string currentGameID;
+    public string currentOpponentUserID;
+
     public void GetDatabase()
     {
         db = FirebaseDatabase.DefaultInstance;
@@ -47,32 +60,16 @@ public class DatabaseManager : MonoBehaviour
     public void ResetUserData() { userData = new(); }
     public void ResetGameData() { gameData = new(); }
 
-    //void PushData(string path, string data, OnSaveDelegate onSaveDelegate = null)
-    //{
-    //    GetDatabase();
-    //    db.RootReference.Child(path).Push().SetRawJsonValueAsync(data).ContinueWithOnMainThread(task =>
-    //    {
-    //        if (task.Exception != null)
-    //            Debug.LogWarning(task.Exception);
-
-    //        //Call our delegate if it's not null
-    //        onSaveDelegate?.Invoke();
-    //    });
-    //}
-
-    //void SaveData(string path, string data, OnSaveDelegate onSaveDelegate = null)
-    //{
-        
-    //}
-
-    public void UpdateUserData()
+    public void RenewUserData()
     {
         if (userData == null) { ResetUserData(); }
+
+        GetUserData();
 
         userData.monsterIDs = GetComponent<SceneNavigator>().monsterIDs;
 
         if (FindObjectOfType<ProfilePicture>())
-            userData.profilePictureSpriteTag = FindObjectOfType<ProfilePicture>().spriteTag;
+            userData.ppSpriteTag = FindObjectOfType<ProfilePicture>().spriteTag;
 
         if (FindObjectOfType<AccountSettings>())
             userData.username = FindObjectOfType<AccountSettings>().username.text;
@@ -88,22 +85,35 @@ public class DatabaseManager : MonoBehaviour
         });
     }
 
-    public void UpdateGameData(string gameID)
+    public void RenewGameData(string gameID)
     {
         if (gameData == null) { ResetGameData(); }
 
+        // get whether this user is host or client
         GetDatabase();
-        gameData.gameID = gameID;
         if (FindObjectOfType<QRCodeGenerator>()) // user is host
         {
             gameData.hostUserID = GetUserID;
+            gameData.hostUsername = FindObjectOfType<AccountSettings>().username.text;
+            gameData.hostSpriteTag = FindObjectOfType<ProfilePicture>().spriteTag;
         }
         else if (FindObjectOfType<QRCodeScanner>()) // user is client
         {
             gameData.clientUserID = GetUserID;
+            gameData.clientUsername = FindObjectOfType<AccountSettings>().username.text;
+            gameData.clientSpriteTag = FindObjectOfType<ProfilePicture>().spriteTag;
         }
 
-        db.RootReference.Child("games").Child(gameData.gameID).SetRawJsonValueAsync(JsonUtility.ToJson(gameData)).ContinueWithOnMainThread(task =>
+        // remove all games hosted by this user
+        if (db.RootReference.Child("games").Child(gameData.hostUserID).ToString().Contains(gameData.hostUserID))
+        {
+            //Debug.Log("removed all games hosted by " + gameData.hostUserID);
+
+            db.RootReference.Child("games").Child(gameData.hostUserID).RemoveValueAsync();
+        }
+
+        // create a new game hosted by this user
+        db.RootReference.Child("games").Child(gameID).SetRawJsonValueAsync(JsonUtility.ToJson(gameData)).ContinueWithOnMainThread(task =>
         {
             if (task.Exception != null)
                 Debug.LogWarning(task.Exception);
@@ -111,6 +121,57 @@ public class DatabaseManager : MonoBehaviour
             //Call our delegate if it's not null
             //onSaveDelegate?.Invoke();
         });
+    }
+
+    private void Start()
+    {
+        StartCoroutine(RepeatGetGameData());
+    }
+
+    IEnumerator RepeatGetGameData()
+    {
+        yield return new WaitForSeconds(0.5f);
+        GetDatabase();
+        GetGameData(GetUserID);
+        yield return StartCoroutine(RepeatGetGameData());
+    }
+
+    public void JoinTestGame(int number)
+    {
+        if (number == 1)
+            JoinGame("TVCryXjrNIZdbvvAewW7ybTk28H3");
+        else if (number == 2)
+            JoinGame("xgBJKkDOaPfdX16ERnZDlAk98Ai1");
+    }
+
+    public void JoinGame(string gameID)
+    {
+        GetDatabase();
+        if (db.RootReference.Child("games").Child(gameID).ToString().Contains(gameID))
+        {
+            GetGameData(gameID, true);
+        }
+    }
+
+    public void GetGameData(string gameID, bool tryJoin = false)
+    {
+        GetDatabase();
+        if (tryJoin)
+            LoadData("games/" + gameID, TryJoinGame);
+        else
+            LoadData("games/" + gameID, GetGameData);
+    }
+
+    public void GetUserData()
+    {
+        GetDatabase();
+        LoadData("users/" + GetUserID, OnGetUserData);
+    }
+
+    public void GetShowUsersData()
+    {
+        GetDatabase();
+        LoadData("games/" + currentGameID, OnShowUsersData);
     }
 
     void LoadData(string path, OnLoadedDelegate onLoadedDelegate)
@@ -126,41 +187,22 @@ public class DatabaseManager : MonoBehaviour
         });
     }
 
-    public void JoinGame(string gameID)
+    void OnGetUserData(DataSnapshot snap) // is self
     {
-        UpdateGameData(gameID);
-        //LoadData("games/" + gameID, OnLoadedGameData);
-    }
-
-    //public void JoinTestGame(int number)
-    //{
-    //    if (number == 1)
-    //        LoadData("games/TVCryXjrNIZdbvvAewW7ybTk28H3", OnLoadedGameData);
-    //    else if (number == 2)
-    //        LoadData("games/xgBJKkDOaPfdX16ERnZDlAk98Ai1", OnLoadedGameData);
-    //}
-
-    public void LoadUserData()
-    {
-        LoadData("users/" + GetUserID, OnLoadedUserData);
-    }
-
-    public void LoadGameData()
-    {
-        LoadData("games/" + gameData.gameID, OnLoadedGameData);
-    }
-
-    void OnLoadedUserData(DataSnapshot snap)
-    {
-        Debug.Log(snap.GetRawJsonValue());
+        GetDatabase();
         var loadedData = JsonUtility.FromJson<UserData>(snap.GetRawJsonValue());
+        UserData newUserData = new();
 
-        if (FindObjectOfType<ProfilePicture>()) // if we need profile picture, use it
+        newUserData.username = loadedData.username;
+        newUserData.ppSpriteTag = loadedData.ppSpriteTag;
+        newUserData.monsterIDs = loadedData.monsterIDs;
+
+        if (FindObjectOfType<ProfilePicture>()) // if we need user's profile picture, show it
         {
             ProfilePicture pp = FindObjectOfType<ProfilePicture>();
             foreach (GameObject baby in FindObjectOfType<GameManager>().babies)
             {
-                if (!baby.CompareTag(loadedData.profilePictureSpriteTag)) { continue; }
+                if (!baby.CompareTag(newUserData.ppSpriteTag)) { continue; }
                 foreach (Transform child in pp.transform)
                 {
                     if (child.name != "Sprite") { continue; }
@@ -171,18 +213,157 @@ public class DatabaseManager : MonoBehaviour
             }
         }
 
-        if (FindObjectOfType<AccountSettings>()) // if we need username, use it
+        if (FindObjectOfType<AccountSettings>()) // if we need user's username, show it
         {
             AccountSettings accset = FindObjectOfType<AccountSettings>();
-            Debug.Log(accset.username.text);
+        }
+
+        db.RootReference.Child("users").Child(GetUserID).SetRawJsonValueAsync(JsonUtility.ToJson(newUserData)).ContinueWithOnMainThread(task =>
+        {
+            if (task.Exception != null)
+                Debug.LogWarning(task.Exception);
+        });
+    }
+
+    void OnShowUsersData(DataSnapshot snap) // both players are in the same game
+    {
+        GetDatabase();
+        var loadedData = JsonUtility.FromJson<GameData>(snap.GetRawJsonValue());
+        GameData newGameData = new();
+
+        newGameData.gameProgress = loadedData.gameProgress;
+
+        newGameData.hostUserID = loadedData.hostUserID;
+        newGameData.hostUsername = loadedData.hostUsername;
+        newGameData.hostSpriteTag = loadedData.hostSpriteTag;
+        newGameData.hostMonsterIDs = loadedData.hostMonsterIDs;
+
+        newGameData.clientUserID = loadedData.clientUserID;
+        newGameData.clientUsername = loadedData.clientUsername;
+        newGameData.clientSpriteTag = loadedData.clientSpriteTag;
+        newGameData.clientMonsterIDs = loadedData.clientMonsterIDs;
+
+        if (FindObjectOfType<ProfilePicture>())
+        {
+            // opponent is client
+            if (GetUserID == newGameData.hostUserID)
+            {
+                foreach (ProfilePicture pp in FindObjectsOfType<ProfilePicture>())
+                {
+                    if (pp.forThisUser)
+                    {
+                        pp.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = newGameData.hostUsername;
+                        pp.SetManualProfilePicture(newGameData.hostSpriteTag);
+                    }
+                    else if (!pp.forThisUser)
+                    {
+                        pp.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = newGameData.clientUsername;
+                        pp.SetManualProfilePicture(newGameData.clientSpriteTag);
+                    }
+                }
+            }
+            // opponent is host
+            else if (GetUserID == newGameData.clientUserID)
+            {
+                foreach (ProfilePicture pp in FindObjectsOfType<ProfilePicture>())
+                {
+                    if (pp.forThisUser)
+                    {
+                        pp.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = newGameData.clientUsername;
+                        pp.SetManualProfilePicture(newGameData.clientSpriteTag);
+                    }
+                    else if (!pp.forThisUser)
+                    {
+                        pp.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = newGameData.hostUsername;
+                        pp.SetManualProfilePicture(newGameData.hostSpriteTag);
+                    }
+                }
+            }
+        }
+
+        //if (FindObjectOfType<AccountSettings>()) // if we need user's username, show it
+        //{
+        //    AccountSettings accset = FindObjectOfType<AccountSettings>();
+        //    Debug.Log(accset.username.text);
+        //}
+    }
+
+    void GetGameData(DataSnapshot snap) // is host
+    {
+        GetDatabase();
+        var loadedData = JsonUtility.FromJson<GameData>(snap.GetRawJsonValue());
+        GameData newGameData = new();
+
+        newGameData.gameProgress = loadedData.gameProgress;
+
+        newGameData.hostUserID = loadedData.hostUserID;
+        newGameData.hostUsername = loadedData.hostUsername;
+        newGameData.hostSpriteTag = loadedData.hostSpriteTag;
+        newGameData.hostMonsterIDs = loadedData.hostMonsterIDs;
+
+        newGameData.clientUserID = loadedData.clientUserID;
+        newGameData.clientUsername = loadedData.clientUsername;
+        newGameData.clientSpriteTag = loadedData.clientSpriteTag;
+        newGameData.clientMonsterIDs = loadedData.clientMonsterIDs;
+
+        if (newGameData.hostUserID == GetUserID && newGameData.clientUserID != "" && newGameData.hostUserID != newGameData.clientUserID)
+        {
+            currentGameID = newGameData.hostUserID;
+            currentOpponentUserID = newGameData.clientUserID;
+
+            if (newGameData.gameProgress == 1)
+            {
+                // show users
+                newGameData.gameProgress = 2;
+                if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().ToString() != "ShowUsers")
+                {
+                    GetComponent<SceneNavigator>().LoadScene("ShowUsers");
+                    db.RootReference.Child("games").Child(newGameData.hostUserID).SetRawJsonValueAsync(JsonUtility.ToJson(newGameData)).ContinueWithOnMainThread(task =>
+                    {
+                        if (task.Exception != null)
+                            Debug.LogWarning(task.Exception);
+                    });
+                }
+            }
         }
     }
 
-    void OnLoadedGameData(DataSnapshot snap)
+    void TryJoinGame(DataSnapshot snap) // is client
     {
-        Debug.Log(snap.GetRawJsonValue());
+        GetDatabase();
         var loadedData = JsonUtility.FromJson<GameData>(snap.GetRawJsonValue());
+        GameData newGameData = new();
 
+        newGameData.gameProgress = loadedData.gameProgress;
+
+        newGameData.hostUserID = loadedData.hostUserID;
+        newGameData.hostUsername = loadedData.hostUsername;
+        newGameData.hostSpriteTag = loadedData.hostSpriteTag;
+        newGameData.hostMonsterIDs = loadedData.hostMonsterIDs;
+
+        newGameData.clientUserID = GetUserID;
+        newGameData.clientUsername = FindObjectOfType<AccountSettings>().username.text;
+        newGameData.clientSpriteTag = FindObjectOfType<ProfilePicture>().spriteTag;
+        newGameData.clientMonsterIDs = GetComponent<SceneNavigator>().monsterIDs;
+
+        // checks if joining game was successful
+        if (newGameData.hostUserID != "" && newGameData.hostUserID != newGameData.clientUserID)
+        {
+            currentGameID = newGameData.hostUserID;
+            currentOpponentUserID = newGameData.hostUserID;
+
+            if (newGameData.gameProgress == 0 && UnityEngine.SceneManagement.SceneManager.GetActiveScene().ToString() != "ShowUsers")
+            {
+                // show users
+                newGameData.gameProgress = 1;
+                db.RootReference.Child("games").Child(newGameData.hostUserID).SetRawJsonValueAsync(JsonUtility.ToJson(newGameData)).ContinueWithOnMainThread(task =>
+                {
+                    if (task.Exception != null)
+                        Debug.LogWarning(task.Exception);
+                });
+                GetComponent<SceneNavigator>().LoadScene("ShowUsers");
+            }
+        }
     }
 
     #region Unused Code

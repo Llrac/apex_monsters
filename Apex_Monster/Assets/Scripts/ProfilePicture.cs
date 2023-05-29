@@ -18,6 +18,8 @@ public class ProfilePicture : MonoBehaviour
     GameObject spriteObject = null;
     [HideInInspector] public Sprite ppSprite;
 
+    public bool forThisUser = true;
+
     void Start()
     {
         foreach (Transform child in transform)
@@ -27,7 +29,6 @@ public class ProfilePicture : MonoBehaviour
                 spriteObject = child.gameObject;
             }
         }
-
         StartChoosingProfilePicture(); // without this call we cannot find babySprite
         if (PlayerPrefs.HasKey(LAST_SPRITETAG) && PlayerPrefs.GetString(LAST_SPRITETAG) != "spritetag")
         {
@@ -52,6 +53,23 @@ public class ProfilePicture : MonoBehaviour
         spriteObject.GetComponent<Image>().sprite = ppSprite;
     }
 
+    public void SetManualProfilePicture(string opponentSpriteTag = "spritetag")
+    {
+        StartChoosingProfilePicture(); // without this call we cannot find babySprite
+        if (opponentSpriteTag != "spritetag")
+        {
+            foreach (Image babySprite in FindObjectsOfType<Image>().Where(a => a.CompareTag(opponentSpriteTag)))
+            {
+                ppSprite = babySprite.sprite;
+                spriteTag = opponentSpriteTag;
+                break;
+            }
+        }
+        StopChoosingProfilePicture();
+
+        spriteObject.GetComponent<Image>().sprite = ppSprite;
+    }
+
     public void StartChoosingProfilePicture()
     {
         ppChooser.SetActive(true);
@@ -67,7 +85,7 @@ public class ProfilePicture : MonoBehaviour
 
         StopChoosingProfilePicture();
 
-        FindObjectOfType<DatabaseManager>().UpdateUserData();
+        FindObjectOfType<DatabaseManager>().RenewUserData();
     }
 
     public void StopChoosingProfilePicture()

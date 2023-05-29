@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour
             Destroy(dot);
         }
 
-        //UpdateDots();
+        UpdateDots();
 
         foreach (Monster monster in FindObjectsOfType<Monster>())
         {

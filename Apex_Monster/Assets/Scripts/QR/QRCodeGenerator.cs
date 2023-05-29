@@ -27,7 +27,7 @@ public class QRCodeGenerator : MonoBehaviour
         gameCode = "";
         if (userID != null)
         {
-            gameCode = userID + " : " + Random.Range(100000, 999999);
+            gameCode = userID;
         }
         else
         {
@@ -44,7 +44,7 @@ public class QRCodeGenerator : MonoBehaviour
         storedEncodedTexture.Apply();
         scanField.texture = storedEncodedTexture;
 
-        FindObjectOfType<DatabaseManager>().UpdateGameData(gameCode);
+        FindObjectOfType<DatabaseManager>().RenewGameData(gameCode);
     }
 
     Color32[] Encode(string textForEncoding, int width, int height)

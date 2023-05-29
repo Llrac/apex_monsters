@@ -45,7 +45,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1131387a81713448950a4f9dc8816af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sceneNavigator: 0
   monsterIDs: 
+  showingAccountSettings: 0
+  debugList: []
+  doCountdown: 0
+  myMonstersMaxTime: 30
+  myMonstersRemainingTime: 0
 --- !u!114 &1553561850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -58,3 +64,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9cba7ac0d81a3043910db2936f3b597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentGameID: xgBJKkDOaPfdX16ERnZDlAk98Ai1
+  currentOpponentUserID: xgBJKkDOaPfdX16ERnZDlAk98Ai1

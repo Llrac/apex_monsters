@@ -7,10 +7,8 @@ using System.Linq;
 public class SceneNavigator : MonoBehaviour
 {
     public static SceneNavigator Instance { get; set; }
-
     [HideInInspector] public bool sceneNavigator = false;
 
-    //Scene lastScene;
     AudioManager am;
     GameManager gm;
     MonsterSpawner ms;
@@ -18,6 +16,10 @@ public class SceneNavigator : MonoBehaviour
     [HideInInspector] public List<int> monsterIDs = new();
     public bool showingAccountSettings = false;
     public List<GameObject> debugList = new();
+
+    public bool doCountdown = false;
+    public int myMonstersMaxTime = 30;
+    public float myMonstersRemainingTime = 0;
 
     void Awake()
     {
@@ -84,53 +86,64 @@ public class SceneNavigator : MonoBehaviour
 
     void Update()
     {
+        if (Instance.doCountdown)
+        {
+            Instance.myMonstersRemainingTime -= Time.deltaTime;
+            if (Instance.myMonstersRemainingTime <= 0)
+            {
+                LoadScene("BattleMonsters");
+            }
+        }
+
         if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.R))
         {
             PlayerPrefs.DeleteAll();
             Debug.Log("deleted all keys");
         }
-        //if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.S))
-        //{
-        //    FindObjectOfType<DatabaseManager>().SendMessage(FindObjectOfType<AccountSettings>().GetUserID, "got message");
-        //}
     }
 
     public void LoadScene(string sceneName)
     {
         SceneManager.LoadScene(sceneName);
-
-        GetDataForScene(sceneName);
-
-        GetComponent<DatabaseManager>().UpdateUserData();
+        PrepareDataForScene(sceneName);
     }
 
-    void GetDataForScene(string sceneName)
+    void PrepareDataForScene(string sceneName)
     {
-        if (sceneName == "ShowQR")
+        switch (sceneName)
         {
+            default:
+                break;
+            case "ShowQR":
+                break;
+            case "ScanQR":
+                break;
+            case "ShowUsers":
+                GetComponent<DatabaseManager>().GetShowUsersData();
+                Invoke(nameof(ShowUsersCountdown), 5);
+                break;
+            case "MyMonsters":
+                FindObjectOfType<MonsterSpawner>().spawnBabies = true;
+                Instance.doCountdown = true;
+                Instance.myMonstersRemainingTime = Instance.myMonstersMaxTime;
+                break;
+            case "BattleMonsters":
+                // get monsters from MyMonsters that you will go to battle with
+                if (FindObjectOfType<Monster>() == null) { return; }
+                monsterIDs.Clear();
+                foreach (Monster monster in FindObjectsOfType<Monster>().Where(m => m.GetComponent<Monster>().insideInventory && m.GetComponent<Monster>().type != "Baby"))
+                {
+                    monsterIDs.Add(monster.monsterID);
+                    MonsterSpawner.SpawnMonsterID(monster.monsterID);
+                }
+                break;
+            case "WinMonsters":
+                break;
+        }
+    }
 
-        }
-        else if (sceneName == "ScanQR")
-        {
-
-        }
-        else if (sceneName == "ShowUsers")
-        {
-            // get playerName and profilePicture from ShowQR so that both players see each other's names and pictures
-        }
-        else if (sceneName == "MyMonsters")
-        {
-            // nothing
-        }
-        else if (sceneName == "BattleMonsters")
-        {
-            // get monsters from MyMonsters that you will go to battle with
-            if (FindObjectOfType<Monster>() == null) { return; }
-            monsterIDs.Clear();
-            foreach (Monster monster in FindObjectsOfType<Monster>().Where(m => m.GetComponent<Monster>().insideInventory && m.GetComponent<Monster>().type != "Baby"))
-            {
-                monsterIDs.Add(monster.monsterID);
-            }
-        }
+    void ShowUsersCountdown()
+    {
+        LoadScene("MyMonsters");
     }
 }

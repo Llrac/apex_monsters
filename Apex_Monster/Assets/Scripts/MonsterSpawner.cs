@@ -8,8 +8,22 @@ public class MonsterSpawner : MonoBehaviour
 
     public GameObject monsterCanvas;
 
+    public enum MonsterType
+    {
+        chieftain,
+        warrior,
+        magic,
+        beast,
+        bird,
+        baby,
+        boss,
+        flat,
+        bobble,
+        mounted
+    }
+
     [Header("Debug: Spawn Monster Baby")]
-    [SerializeField] bool spawnBabies = false;
+    [SerializeField] public bool spawnBabies = false;
     [SerializeField] int spawnAmount = 1;
     [SerializeField] bool spawnMonsterID = false;
     [SerializeField] int monsterID = 1;
@@ -36,17 +50,66 @@ public class MonsterSpawner : MonoBehaviour
         }
     }
 
+    public bool MergeConditions(Monster monster1, Monster monster2, MonsterType transformIntoMonsterType)
+    {
+        switch (transformIntoMonsterType)
+        {
+            case MonsterType.chieftain:
+                if (monster2.type == "Warrior" && monster2.CompareTag(monster1.tag))
+                    return true;
+                break;
+            case MonsterType.warrior:
+                if (monster1.CompareTag("Sinister") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
+                    return true;
+                break;
+            case MonsterType.magic:
+                if (monster1.CompareTag("Cloudy") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
+                    return true;
+                break;
+            case MonsterType.beast:
+                if (monster1.CompareTag("Porcine") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
+                    return true;
+                break;
+            case MonsterType.bird:
+                if (monster1.CompareTag("Farming") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
+                    return true;
+                break;
+            case MonsterType.baby:
+                break;
+            case MonsterType.boss:
+                if (monster1.CompareTag("Porcine") && monster1.level == monster2.level + 1 && monster1.type == "Baby" && monster2.type != "Chieftain" && monster2.type != "Boss" && monster2.type != "Mounted" && monster2.type != "Baby")
+                    return true;
+                break;
+            case MonsterType.flat:
+                if (monster1.CompareTag("Reptilian") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
+                    return true;
+                break;
+            case MonsterType.bobble:
+                if (monster1.CompareTag("Robotic") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
+                    return true;
+                break;
+            case MonsterType.mounted:
+                if (monster1.CompareTag("Cloudy") && monster1.level > monster2.level && monster1.type == "Baby" && monster2.type != "Chieftain" && monster2.type != "Boss" && monster2.type != "Mounted" && monster2.type != "Baby")
+                    return true;
+                break;
+            default:
+                break;
+        }
+
+        return false;
+    }
+
     public void Merge(Monster monster1, Monster monster2, bool lastTry = false)
     {
         // Spawn Boss
-        if (monster1.CompareTag("Porcine") && monster1.level == monster2.level + 1 && monster1.type == "Baby" && monster2.type != "Chieftain" && monster2.type != "Boss" && monster2.type != "Mounted" && monster2.type != "Baby")
+        if (MergeConditions(monster1, monster2, MonsterType.boss))
         {
             SpawnBoss(monster2, monster2.transform.position.x, monster2.transform.position.y);
             monster1.Delete();
             monster2.Delete();
             return;
         }
-        else if (monster2.CompareTag("Porcine") && monster2.level == monster1.level + 1 && monster2.type == "Baby" && monster1.type != "Chieftain" && monster1.type != "Boss" && monster1.type != "Mounted" && monster1.type != "Baby")
+        else if (MergeConditions(monster2, monster1, MonsterType.boss))
         {
             SpawnBoss(monster1, monster2.transform.position.x, monster2.transform.position.y);
             monster1.Delete();
@@ -54,14 +117,14 @@ public class MonsterSpawner : MonoBehaviour
             return;
         }
         // Spawn Mounted
-        else if (monster1.CompareTag("Cloudy") && monster1.level > monster2.level && monster1.type == "Baby" && monster2.type != "Chieftain" && monster2.type != "Boss" && monster2.type != "Mounted" && monster2.type != "Baby")
+        else if (MergeConditions(monster1, monster2, MonsterType.mounted))
         {
             SpawnMounted(monster2, monster2.transform.position.x, monster2.transform.position.y);
             monster1.Delete();
             monster2.Delete();
             return;
         }
-        else if (monster2.CompareTag("Cloudy") && monster2.level > monster1.level && monster2.type == "Baby" && monster1.type != "Chieftain" && monster1.type != "Boss" && monster1.type != "Mounted" && monster1.type != "Baby")
+        else if (MergeConditions(monster2, monster1, MonsterType.mounted))
         {
             SpawnMounted(monster1, monster2.transform.position.x, monster2.transform.position.y);
             monster1.Delete();
@@ -76,7 +139,7 @@ public class MonsterSpawner : MonoBehaviour
                 break;
 
             case "Warrior":
-                if (monster2.type == "Warrior" && monster2.CompareTag(monster1.tag))
+                if (MergeConditions(monster1, monster2, MonsterType.chieftain))
                 {
                     SpawnChieftain(monster2, monster2.transform.position.x, monster2.transform.position.y);
                     monster1.Delete();
@@ -102,14 +165,14 @@ public class MonsterSpawner : MonoBehaviour
                 break;
 
             case "Baby":
-                if (monster2.CompareTag("Sinister") && !monster1.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
+                if (MergeConditions(monster2, monster1, MonsterType.warrior))
                 {
                     SpawnWarrior(monster1, monster2.transform.position.x, monster2.transform.position.y);
                     monster1.Delete();
                     monster2.Delete();
                     return;
                 }
-                else if (monster1.CompareTag("Sinister") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
+                else if (MergeConditions(monster1, monster2, MonsterType.warrior))
                 {
                     SpawnWarrior(monster2, monster2.transform.position.x, monster2.transform.position.y);
                     monster1.Delete();
@@ -117,7 +180,7 @@ public class MonsterSpawner : MonoBehaviour
                     return;
                 }
 
-                else if (monster1.CompareTag("Porcine") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
+                else if (MergeConditions(monster1, monster2, MonsterType.beast))
                 {
                     if (monster2.CompareTag("Porcine") && monster1.startSize == monster2.startSize)
                     {
@@ -129,21 +192,21 @@ public class MonsterSpawner : MonoBehaviour
                     monster2.Delete();
                     return;
                 }
-                else if (monster1.CompareTag("Robotic") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
+                else if (MergeConditions(monster1, monster2, MonsterType.bobble))
                 {
                     SpawnBobble(monster2, monster2.transform.position.x, monster2.transform.position.y);
                     monster1.Delete();
                     monster2.Delete();
                     return;
                 }
-                else if (monster1.CompareTag("Reptilian") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
+                else if (MergeConditions(monster1, monster2, MonsterType.flat))
                 {
                     SpawnFlat(monster2, monster2.transform.position.x, monster2.transform.position.y);
                     monster1.Delete();
                     monster2.Delete();
                     return;
                 }
-                else if (monster1.CompareTag("Cloudy") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
+                else if (MergeConditions(monster1, monster2, MonsterType.magic))
                 {
                     if (monster2.CompareTag("Cloudy") && monster1.startSize == monster2.startSize)
                     {
@@ -155,7 +218,7 @@ public class MonsterSpawner : MonoBehaviour
                     monster2.Delete();
                     return;
                 }
-                else if (monster1.CompareTag("Farming") && !monster2.CompareTag("Undead") && monster2.type == "Baby" && monster1.startSize == monster2.startSize)
+                else if (MergeConditions(monster1, monster2, MonsterType.bird))
                 {
                     SpawnBird(monster2, monster2.transform.position.x, monster2.transform.position.y);
                     monster1.Delete();

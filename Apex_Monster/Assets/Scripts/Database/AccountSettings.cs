@@ -90,7 +90,7 @@ public class AccountSettings : MonoBehaviour
                 PlayerPrefs.SetString(LAST_EMAIL, email);
                 PlayerPrefs.SetString(LAST_PASSWORD, password);
 
-                FindObjectOfType<DatabaseManager>().UpdateUserData();
+                FindObjectOfType<DatabaseManager>().RenewUserData();
             }
         });
     }
@@ -112,8 +112,7 @@ public class AccountSettings : MonoBehaviour
 
     private void LoginFirebase(string username, string email, string password)
     {
-        FindObjectOfType<DatabaseManager>().UpdateUserData();
-
+        FindObjectOfType<DatabaseManager>().RenewUserData();
         FirebaseAuth auth = FirebaseAuth.DefaultInstance;
         auth.SignInWithEmailAndPasswordAsync(email, password).ContinueWithOnMainThread(task =>
         {
@@ -124,7 +123,7 @@ public class AccountSettings : MonoBehaviour
             else
             {
                 FirebaseUser newUser = task.Result;
-                Debug.Log(username + " has logged in");
+                //Debug.Log(username + " has logged in");
 
                 PlayerPrefs.SetString(LAST_NAME, username);
                 PlayerPrefs.SetString(LAST_EMAIL, email);
@@ -135,7 +134,7 @@ public class AccountSettings : MonoBehaviour
                 this.password.text = password;
 
                 FindObjectOfType<QRCodeGenerator>().EncodeTextToQRCode(newUser.UserId);
-                FindObjectOfType<DatabaseManager>().LoadUserData();
+                FindObjectOfType<DatabaseManager>().GetUserData();
             }
         });
     }

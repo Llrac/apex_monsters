@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/ScanQR.unity
     guid: 1c8e630fce467e941b335ed76699c0b2
   - enabled: 1
+    path: Assets/Scenes/ShowUsers.unity
+    guid: a8cd2ed455c8ef64baae92731cd7ad40
+  - enabled: 1
     path: Assets/Scenes/MyMonsters.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
