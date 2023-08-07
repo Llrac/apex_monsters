@@ -12,14 +12,19 @@ public class SceneNavigator : MonoBehaviour
     AudioManager am;
     GameManager gm;
     MonsterSpawner ms;
-
-    [HideInInspector] public List<int> monsterIDs = new();
+    
     public bool showingAccountSettings = false;
     public List<GameObject> debugList = new();
 
     public bool doCountdown = false;
+    public GameObject countdownObject = null;
     public int myMonstersMaxTime = 30;
     public float myMonstersRemainingTime = 0;
+    public int myMonstersRemainingTimeInteger = 0;
+
+    [HideInInspector] public List<int> myMonsterIDs = new();
+    [HideInInspector] public List<int> myMonsterPowers = new();
+    [HideInInspector] public List<float> myMonsterSizes = new();
 
     void Awake()
     {
@@ -89,9 +94,20 @@ public class SceneNavigator : MonoBehaviour
         if (Instance.doCountdown)
         {
             Instance.myMonstersRemainingTime -= Time.deltaTime;
+            Instance.myMonstersRemainingTimeInteger = Mathf.FloorToInt(Instance.myMonstersRemainingTime);
+
             if (Instance.myMonstersRemainingTime <= 0)
             {
+                Instance.myMonstersRemainingTime = Instance.myMonstersMaxTime;
+                Instance.doCountdown = false;
                 LoadScene("BattleMonsters");
+            }
+
+            else
+            {
+                if (!Instance.countdownObject)
+                    Instance.countdownObject = GameObject.Find("COUNTDOWN").transform.GetChild(0).gameObject;
+                Instance.countdownObject.GetComponent<TMPro.TextMeshProUGUI>().text = "Time remaining: " + Instance.myMonstersRemainingTimeInteger.ToString().Normalize() + "s";
             }
         }
 
@@ -120,22 +136,46 @@ public class SceneNavigator : MonoBehaviour
                 break;
             case "ShowUsers":
                 GetComponent<DatabaseManager>().GetShowUsersData();
+
+                // play according music
+                FindObjectOfType<AudioManager>().backgroundMusicAS.gameObject.SetActive(false);
+                FindObjectOfType<AudioManager>().battleMusicAS.gameObject.SetActive(true);
+
                 Invoke(nameof(ShowUsersCountdown), 5);
                 break;
             case "MyMonsters":
+                // play according music
+                FindObjectOfType<AudioManager>().backgroundMusicAS.gameObject.SetActive(true);
+                FindObjectOfType<AudioManager>().battleMusicAS.gameObject.SetActive(false);
+
+                // spawn monsters and set up timer
                 FindObjectOfType<MonsterSpawner>().spawnBabies = true;
                 Instance.doCountdown = true;
                 Instance.myMonstersRemainingTime = Instance.myMonstersMaxTime;
                 break;
             case "BattleMonsters":
-                // get monsters from MyMonsters that you will go to battle with
-                if (FindObjectOfType<Monster>() == null) { return; }
-                monsterIDs.Clear();
+                Instance.doCountdown = false;
+
+                // play according music
+                FindObjectOfType<AudioManager>().backgroundMusicAS.gameObject.SetActive(false);
+                FindObjectOfType<AudioManager>().battleMusicAS.gameObject.SetActive(true);
+
+                if (!FindObjectOfType<Monster>()) { Debug.Log("found no monsters"); return; }
+                
+                myMonsterIDs.Clear();
+                myMonsterPowers.Clear();
+                myMonsterSizes.Clear();
+
                 foreach (Monster monster in FindObjectsOfType<Monster>().Where(m => m.GetComponent<Monster>().insideInventory && m.GetComponent<Monster>().type != "Baby"))
                 {
-                    monsterIDs.Add(monster.monsterID);
-                    MonsterSpawner.SpawnMonsterID(monster.monsterID);
+                    myMonsterIDs.Add(monster.monsterID);
+                    myMonsterPowers.Add(monster.power);
+                    myMonsterSizes.Add(monster.startSize.x);
+                    MonsterSpawner.SpawnMonsterByID(monster.monsterID, monster.power, monster.startSize.x);
                 }
+
+                GetComponent<DatabaseManager>().GetBattleMonstersData();
+
                 break;
             case "WinMonsters":
                 break;

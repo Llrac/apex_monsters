@@ -91,9 +91,7 @@ MonoBehaviour:
   type: Bobble
   battleStyle: Huge
   monsterID: 33
-  attack: 3
-  startHealth: 6
-  currentHealth: 1
+  power: 2
   level: 1
   dragSize: 1.25
   inventoryOffset: {x: 0, y: -0.3}

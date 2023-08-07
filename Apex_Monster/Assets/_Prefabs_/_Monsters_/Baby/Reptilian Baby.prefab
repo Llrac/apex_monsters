@@ -33,7 +33,7 @@ Transform:
   m_Children:
   - {fileID: 8241016306376961462}
   m_Father: {fileID: 0}
-  m_RootOrder: 13
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &4479859769380061437
 Animator:
@@ -91,13 +91,11 @@ MonoBehaviour:
   type: Baby
   battleStyle: 
   monsterID: 3
-  attack: 1
-  startHealth: 1
-  currentHealth: 1
+  power: 1
   level: 1
   dragSize: 1.25
   inventoryOffset: {x: 0, y: -0.2}
-  inventorySize: 1
+  inventorySize: 0.8
   startSize: {x: 0, y: 0, z: 0}
   mergeProgress: 0
   insideInventory: 0

@@ -409,9 +409,7 @@ MonoBehaviour:
   type: Chieftain
   battleStyle: Fighter
   monsterID: 52
-  attack: 6
-  startHealth: 12
-  currentHealth: 6
+  power: 7
   level: 1
   dragSize: 1.25
   inventoryOffset: {x: 0, y: -0.45}

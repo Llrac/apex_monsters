@@ -561,6 +561,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneNavigated: 0
+  isInBattle: 0
   backgroundMusicAS: {fileID: 0}
   battleMusicAS: {fileID: 0}
   sfxAS: {fileID: 0}

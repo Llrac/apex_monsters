@@ -91,13 +91,11 @@ MonoBehaviour:
   type: Baby
   battleStyle: 
   monsterID: 7
-  attack: 1
-  startHealth: 1
-  currentHealth: 1
+  power: 1
   level: 1
   dragSize: 1.25
   inventoryOffset: {x: 0, y: -0.2}
-  inventorySize: 1
+  inventorySize: 0.8
   startSize: {x: 0, y: 0, z: 0}
   mergeProgress: 0
   insideInventory: 0

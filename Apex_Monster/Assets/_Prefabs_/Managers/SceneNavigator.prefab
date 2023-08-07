@@ -46,12 +46,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneNavigator: 0
-  monsterIDs: 
   showingAccountSettings: 0
   debugList: []
   doCountdown: 0
-  myMonstersMaxTime: 30
+  countdownObject: {fileID: 0}
+  myMonstersMaxTime: 20
   myMonstersRemainingTime: 0
+  myMonstersRemainingTimeInteger: 0
 --- !u!114 &1553561850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -66,3 +67,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentGameID: xgBJKkDOaPfdX16ERnZDlAk98Ai1
   currentOpponentUserID: xgBJKkDOaPfdX16ERnZDlAk98Ai1
+  monsterIDs: 
+  monsterPowers: 
+  monsterSizes: []

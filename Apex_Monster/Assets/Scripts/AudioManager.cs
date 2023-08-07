@@ -5,6 +5,7 @@ using UnityEngine;
 public class AudioManager : MonoBehaviour
 {
     [HideInInspector] public bool sceneNavigated = false;
+    public bool isInBattle = false;
 
     [HideInInspector] public AudioSource backgroundMusicAS;
     [HideInInspector] public AudioSource battleMusicAS;
@@ -34,6 +35,8 @@ public class AudioManager : MonoBehaviour
 
     int randomizedBackgroundOST;
     List<AudioClip> backgroundOSTs = new();
+    int randomizedBattleOST;
+    List<AudioClip> battleOSTs = new();
 
     void Start()
     {
@@ -52,11 +55,7 @@ public class AudioManager : MonoBehaviour
                 else if (child.name == "Battle_Music")
                 {
                     battleMusicAS = child.gameObject.GetComponent<AudioSource>();
-                    if (undeniable != null)
-                    {
-                        battleMusicAS.clip = undeniable;
-                        battleMusicAS.Play();
-                    }
+                    PlayRandomBattleMusic();
                 }
                 else if (child.name == "SFX")
                 {
@@ -84,13 +83,18 @@ public class AudioManager : MonoBehaviour
         {
             PlayRandomBackgroundMusic();
         }
+
+        if (battleMusicAS.gameObject.activeSelf && !battleMusicAS.isPlaying)
+        {
+            PlayRandomBattleMusic();
+        }
     }
     
     void PlayRandomBackgroundMusic()
     {
         if (backgroundOSTs.Count > 0)
         {
-            PlayRemainingMusic();
+            PlayRemainingMusic(false);
             return;
         }
         if (dropletsOfDew)
@@ -99,17 +103,44 @@ public class AudioManager : MonoBehaviour
             backgroundOSTs.Add(shadesOfOrange);
         if (anAutumn)
             backgroundOSTs.Add(anAutumn);
-        PlayRemainingMusic();
+        PlayRemainingMusic(false);
     }
 
-    void PlayRemainingMusic()
+    void PlayRandomBattleMusic()
     {
-        randomizedBackgroundOST = Random.Range(0, backgroundOSTs.Count - 1);
+        if (battleOSTs.Count > 0)
+        {
+            PlayRemainingMusic(true);
+            return;
+        }
+        if (undeniable)
+            battleOSTs.Add(undeniable);
+        if (tuffEnough)
+            battleOSTs.Add(tuffEnough);
+    }
 
-        backgroundMusicAS.clip = backgroundOSTs[randomizedBackgroundOST];
-        backgroundMusicAS.Play();
+    void PlayRemainingMusic(bool isBattle = false)
+    {
+        if (!isBattle)
+        {
+            if (!backgroundMusicAS.isActiveAndEnabled) { return; }
+            randomizedBackgroundOST = Random.Range(0, backgroundOSTs.Count);
 
-        backgroundOSTs.RemoveAt(randomizedBackgroundOST);
+            backgroundMusicAS.clip = backgroundOSTs[randomizedBackgroundOST];
+            backgroundMusicAS.Play();
+
+            backgroundOSTs.RemoveAt(randomizedBackgroundOST);
+        }
+        else
+        {
+            if (!battleMusicAS.isActiveAndEnabled) { return; }
+            randomizedBattleOST = Random.Range(0, battleOSTs.Count);
+
+            battleMusicAS.clip = battleOSTs[randomizedBattleOST];
+            battleMusicAS.Play();
+
+            battleOSTs.RemoveAt(randomizedBattleOST);
+        }
     }
 
     public void PlayPopSFX()

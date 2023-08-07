@@ -18,9 +18,7 @@ public class Monster : MonoBehaviour
     public int monsterID = 0;
 
     [Header("Stats")]
-    [Range(1, 9)] public int attack = 1;
-    [Range(1, 17)] public int startHealth = 1;
-    [HideInInspector] public int currentHealth = 1;
+    [Range(1, 11)] public int power = 1;
     [HideInInspector] public int level = 1;
 
     [Header("Size")]
@@ -54,15 +52,14 @@ public class Monster : MonoBehaviour
 
     // Monster Canvas Variables
     GameObject monsterCanvas;
-    GameObject attackCanvas;
-    GameObject healthCanvas;
+    GameObject powerCanvas;
     GameObject levelCanvas;
 
     void Start()
     {
         SetupMonsterCanvas();
         startSize = transform.localScale;
-        currentHealth = startHealth;
+        //currentHealth = startHealth;
         //startZPosition = 0;
         GetComponents();
     }
@@ -99,24 +96,34 @@ public class Monster : MonoBehaviour
 
         foreach (RectTransform child in monsterCanvas.GetComponentsInChildren<RectTransform>())
         {
-            if (child.name == "Horizontal Layout Group" && type == "Baby")
+            if (child.name == "Power")
             {
-                child.gameObject.SetActive(false);
+                powerCanvas = child.gameObject;
+                powerCanvas.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = power.ToString();
+
+                if (type == "Baby")
+                {
+                    powerCanvas.SetActive(false);
+                }
             }
-            if (child.name == "Attack")
+            //else if (child.name == "Health")
+            //{
+            //    healthCanvas = child.gameObject;
+            //    //healthCanvas.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = startHealth.ToString();
+            //}
+            else if (child.name == "Level") { levelCanvas = child.gameObject; }
+
+            if (levelCanvas)
             {
-                attackCanvas = child.gameObject;
-                attackCanvas.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = attack.ToString();
-            }
-            else if (child.name == "Health")
-            {
-                healthCanvas = child.gameObject;
-                healthCanvas.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = startHealth.ToString();
-            }
-            else if (child.name == "Level")
-            {
-                levelCanvas = child.gameObject;
-                levelCanvas.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = level.ToString();
+                if (level > 1)
+                {
+                    levelCanvas.SetActive(true);
+                    levelCanvas.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = level.ToString();
+                }
+                else
+                {
+                    levelCanvas.SetActive(false);
+                }
             }
         }
     }

@@ -81,7 +81,7 @@ SpriteRenderer:
   m_Size: {x: 1.02, y: 0.83}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &4220174280367095097
@@ -316,9 +316,7 @@ MonoBehaviour:
   type: Bird
   battleStyle: Airborne
   monsterID: 29
-  attack: 3
-  startHealth: 6
-  currentHealth: 1
+  power: 2
   level: 1
   dragSize: 1.25
   inventoryOffset: {x: -0.1, y: 0}

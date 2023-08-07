@@ -91,9 +91,7 @@ MonoBehaviour:
   type: Mounted
   battleStyle: Airborne
   monsterID: 86
-  attack: 7
-  startHealth: 9
-  currentHealth: 1
+  power: 7
   level: 1
   dragSize: 1.25
   inventoryOffset: {x: 0.1, y: -0.1}

@@ -368,9 +368,7 @@ MonoBehaviour:
   type: Bird
   battleStyle: Airborne
   monsterID: 26
-  attack: 3
-  startHealth: 7
-  currentHealth: 1
+  power: 2
   level: 1
   dragSize: 1.25
   inventoryOffset: {x: 0.05, y: -0.2}

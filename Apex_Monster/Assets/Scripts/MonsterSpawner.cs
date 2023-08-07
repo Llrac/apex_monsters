@@ -45,7 +45,7 @@ public class MonsterSpawner : MonoBehaviour
         }
         if (spawnMonsterID)
         {
-            SpawnMonsterID(monsterID);
+            SpawnMonsterByID(monsterID);
             spawnMonsterID = false;
         }
     }
@@ -304,7 +304,7 @@ public class MonsterSpawner : MonoBehaviour
         }
     }
 
-    static public void SpawnMonsterID(int monsterID, float x = 0, float y = 0, bool randomizeSpawnPosition = false)
+    static public void SpawnMonsterByID(int monsterID, int power = 0, float size = 0, bool randomizeSpawnPosition = false)
     {
         GameManager gm = FindObjectOfType<GameManager>();
         GameObject newMonster;
@@ -435,14 +435,23 @@ public class MonsterSpawner : MonoBehaviour
             _ => Instantiate(gm.babies[0]),
         };
 
-        if (randomizeSpawnPosition)
+        newMonster.transform.position = new Vector2(Random.Range(-gm.screenSize.x, gm.screenSize.x), Random.Range(-gm.screenSize.y, gm.screenSize.y));
+        if (power != 0)
         {
-            newMonster.transform.position = new Vector2(Random.Range(-gm.screenSize.x, gm.screenSize.x), Random.Range(-gm.screenSize.y, gm.screenSize.y));
+            newMonster.GetComponent<Monster>().power = power;
         }
-        else
+        if (size != 0)
         {
-            newMonster.transform.position = new Vector2(x, y);
+            newMonster.transform.localScale = new Vector2(size, size);
         }
+
+        //if (randomizeSpawnPosition)
+        //{
+        //}
+        //else
+        //{
+        //    newMonster.transform.position = new Vector2(x, y);
+        //}
         newMonster.transform.SetParent(FindObjectOfType<SceneNavigator>().transform);
         gm.UpdateScreen();
     }
@@ -452,8 +461,8 @@ public class MonsterSpawner : MonoBehaviour
         monster2.Delete();
         if (roboticUpgrade)
         {
-            monster1.startSize = new Vector3(monster1.startSize.x + 0.25f, monster1.startSize.y + 0.25f, monster1.startSize.z + 0.25f);
-            monster1.inventorySize *= 0.9375f;
+            monster1.startSize = new Vector3(monster1.startSize.x + 0.15f, monster1.startSize.y + 0.15f, monster1.startSize.z + 0.15f);
+            monster1.inventorySize *= 0.8f;
         }
         else
         {
@@ -461,10 +470,7 @@ public class MonsterSpawner : MonoBehaviour
             monster1.level++;
             monster1.inventorySize *= 0.75f;
         }
-        monster1.attack += monster2.attack;
-        monster1.startHealth += monster2.startHealth;
-        monster1.currentHealth = monster1.startHealth;
-
+        monster1.power += monster2.power;
         monster1.transform.localScale = monster1.startSize;
         monster1.UpdateMonsterCanvas();
         Celebrate(monster1.gameObject, monster2.gameObject);
@@ -508,8 +514,8 @@ public class MonsterSpawner : MonoBehaviour
 
     private static void UpdateSpawnedMonsterStats(Monster monster, float x, float y, GameObject newMonster)
     {
-        newMonster.GetComponent<Monster>().attack *= monster.level;
-        newMonster.GetComponent<Monster>().startHealth *= monster.level;
+        newMonster.GetComponent<Monster>().power *= monster.level;
+        //newMonster.GetComponent<Monster>().startHealth *= monster.level;
         newMonster.GetComponent<Monster>().level = monster.level;
         newMonster.transform.localScale = monster.startSize;
         newMonster.transform.position = new Vector2(x, y);
@@ -711,10 +717,9 @@ public class MonsterSpawner : MonoBehaviour
             9 => Instantiate(gm.mounted[3]),
             _ => Instantiate(gm.chieftains[3]),
         };
-        newUndead.GetComponent<Monster>().attack = monster1.attack + 1;
-        newUndead.GetComponent<Monster>().startHealth = monster1.startHealth;
-        newUndead.GetComponent<Monster>().startSize = monster1.startSize;
+        newUndead.GetComponent<Monster>().power = monster1.power + 1;
         newUndead.GetComponent<Monster>().level = monster1.level;
+        newUndead.GetComponent<Monster>().startSize = monster1.startSize;
         newUndead.transform.localScale = monster1.startSize;
         newUndead.transform.position = new Vector2(monster2.transform.position.x, monster2.transform.position.y);
         newUndead.GetComponent<Monster>().UpdateMonsterCanvas();

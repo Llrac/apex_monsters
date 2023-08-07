@@ -179,9 +179,7 @@ MonoBehaviour:
   type: Beast
   battleStyle: Huge
   monsterID: 11
-  attack: 2
-  startHealth: 10
-  currentHealth: 1
+  power: 3
   level: 1
   dragSize: 1.25
   inventoryOffset: {x: 0, y: -0.1}

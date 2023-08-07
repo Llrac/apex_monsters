@@ -230,9 +230,7 @@ MonoBehaviour:
   type: Flat
   battleStyle: Fighter
   monsterID: 68
-  attack: 1
-  startHealth: 13
-  currentHealth: 1
+  power: 2
   level: 1
   dragSize: 1.25
   inventoryOffset: {x: 0, y: -0.1}

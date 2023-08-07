@@ -621,9 +621,7 @@ MonoBehaviour:
   type: Warrior
   battleStyle: Fighter
   monsterID: 98
-  attack: 3
-  startHealth: 5
-  currentHealth: 1
+  power: 3
   level: 1
   dragSize: 1.25
   inventoryOffset: {x: 0, y: -0.2}

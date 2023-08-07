@@ -17,12 +17,16 @@ public class GameData
     public string hostUsername;
     public string hostSpriteTag;
     public List<int> hostMonsterIDs;
+    public List<int> hostMonsterPowers;
+    public List<float> hostMonsterSizes;
 
     // user who scans QR
     public string clientUserID;
     public string clientUsername;
     public string clientSpriteTag;
     public List<int> clientMonsterIDs;
+    public List<int> clientMonsterPowers;
+    public List<float> clientMonsterSizes;
 }
 
 [Serializable]
@@ -31,6 +35,8 @@ public class UserData
     public string username;
     public string ppSpriteTag;
     public List<int> monsterIDs; // crucial *gameplay* info
+    public List<int> monsterPowers; // crucial *gameplay* info
+    public List<float> monsterSizes; // crucial *gameplay* info
 }
 
 public class DatabaseManager : MonoBehaviour
@@ -47,8 +53,18 @@ public class DatabaseManager : MonoBehaviour
     public delegate void OnLoadedDelegate(DataSnapshot snapshot);
     public delegate void OnSaveDelegate();
 
-    public string currentGameID;
-    public string currentOpponentUserID;
+    public string currentGameID = null;
+    public string currentOpponentUserID = null;
+
+    public bool maySpawnOpposingMonsters = false;
+
+    public List<int> currentHostMonsterIDs = new();
+    public List<int> currentHostMonsterPowers = new();
+    public List<float> currentHostMonsterSizes = new();
+
+    public List<int> currentClientMonsterIDs = new();
+    public List<int> currentClientMonsterPowers = new();
+    public List<float> currentClientMonsterSizes = new();
 
     public void GetDatabase()
     {
@@ -66,13 +82,17 @@ public class DatabaseManager : MonoBehaviour
 
         GetUserData();
 
-        userData.monsterIDs = GetComponent<SceneNavigator>().monsterIDs;
+        //userData.monsterIDs = GetComponent<SceneNavigator>().monsterIDs;
+        //userData.monsterPowers = GetComponent<SceneNavigator>().monsterPowers;
+        //userData.monsterSizes = GetComponent<SceneNavigator>().monsterSizes;
 
         if (FindObjectOfType<ProfilePicture>())
             userData.ppSpriteTag = FindObjectOfType<ProfilePicture>().spriteTag;
 
         if (FindObjectOfType<AccountSettings>())
             userData.username = FindObjectOfType<AccountSettings>().username.text;
+
+        maySpawnOpposingMonsters = false;
 
         GetDatabase();
         db.RootReference.Child("users").Child(GetUserID).SetRawJsonValueAsync(JsonUtility.ToJson(userData)).ContinueWithOnMainThread(task =>
@@ -104,6 +124,14 @@ public class DatabaseManager : MonoBehaviour
             gameData.clientSpriteTag = FindObjectOfType<ProfilePicture>().spriteTag;
         }
 
+        gameData.hostMonsterIDs = null;
+        gameData.hostMonsterPowers = null;
+        gameData.hostMonsterSizes = null;
+
+        gameData.clientMonsterIDs = null;
+        gameData.clientMonsterPowers = null;
+        gameData.clientMonsterSizes = null;
+
         // remove all games hosted by this user
         if (db.RootReference.Child("games").Child(gameData.hostUserID).ToString().Contains(gameData.hostUserID))
         {
@@ -133,6 +161,7 @@ public class DatabaseManager : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         GetDatabase();
         GetGameData(GetUserID);
+
         yield return StartCoroutine(RepeatGetGameData());
     }
 
@@ -174,6 +203,12 @@ public class DatabaseManager : MonoBehaviour
         LoadData("games/" + currentGameID, OnShowUsersData);
     }
 
+    public void GetBattleMonstersData()
+    {
+        GetDatabase();
+        LoadData("games/" + currentGameID, OnBattleMonstersData);
+    }
+
     void LoadData(string path, OnLoadedDelegate onLoadedDelegate)
     {
         GetDatabase();
@@ -193,9 +228,7 @@ public class DatabaseManager : MonoBehaviour
         var loadedData = JsonUtility.FromJson<UserData>(snap.GetRawJsonValue());
         UserData newUserData = new();
 
-        newUserData.username = loadedData.username;
         newUserData.ppSpriteTag = loadedData.ppSpriteTag;
-        newUserData.monsterIDs = loadedData.monsterIDs;
 
         if (FindObjectOfType<ProfilePicture>()) // if we need user's profile picture, show it
         {
@@ -218,6 +251,7 @@ public class DatabaseManager : MonoBehaviour
             AccountSettings accset = FindObjectOfType<AccountSettings>();
         }
 
+        // update any changes
         db.RootReference.Child("users").Child(GetUserID).SetRawJsonValueAsync(JsonUtility.ToJson(newUserData)).ContinueWithOnMainThread(task =>
         {
             if (task.Exception != null)
@@ -236,12 +270,10 @@ public class DatabaseManager : MonoBehaviour
         newGameData.hostUserID = loadedData.hostUserID;
         newGameData.hostUsername = loadedData.hostUsername;
         newGameData.hostSpriteTag = loadedData.hostSpriteTag;
-        newGameData.hostMonsterIDs = loadedData.hostMonsterIDs;
 
         newGameData.clientUserID = loadedData.clientUserID;
         newGameData.clientUsername = loadedData.clientUsername;
         newGameData.clientSpriteTag = loadedData.clientSpriteTag;
-        newGameData.clientMonsterIDs = loadedData.clientMonsterIDs;
 
         if (FindObjectOfType<ProfilePicture>())
         {
@@ -280,15 +312,63 @@ public class DatabaseManager : MonoBehaviour
                 }
             }
         }
-
-        //if (FindObjectOfType<AccountSettings>()) // if we need user's username, show it
-        //{
-        //    AccountSettings accset = FindObjectOfType<AccountSettings>();
-        //    Debug.Log(accset.username.text);
-        //}
     }
 
-    void GetGameData(DataSnapshot snap) // is host
+    void OnBattleMonstersData(DataSnapshot snap) // both players are in the same game
+    {
+        GetDatabase();
+        var loadedData = JsonUtility.FromJson<GameData>(snap.GetRawJsonValue());
+        GameData newGameData = new();
+
+        newGameData.gameProgress = loadedData.gameProgress;
+
+        newGameData.hostUserID = loadedData.hostUserID;
+        newGameData.hostMonsterIDs = loadedData.hostMonsterIDs;
+        newGameData.hostMonsterPowers = loadedData.hostMonsterPowers;
+        newGameData.hostMonsterSizes = loadedData.hostMonsterSizes;
+
+        newGameData.clientUserID = loadedData.clientUserID;
+        newGameData.clientMonsterIDs = loadedData.clientMonsterIDs;
+        newGameData.clientMonsterPowers = loadedData.clientMonsterPowers;
+        newGameData.clientMonsterSizes = loadedData.clientMonsterSizes;
+
+        // if this user is host
+        if (GetUserID == newGameData.hostUserID)
+        {
+            Debug.Log("host");
+
+            newGameData.hostMonsterIDs = GetComponent<SceneNavigator>().myMonsterIDs;
+            newGameData.hostMonsterPowers = GetComponent<SceneNavigator>().myMonsterPowers;
+            newGameData.hostMonsterSizes = GetComponent<SceneNavigator>().myMonsterSizes;
+
+            maySpawnOpposingMonsters = true;
+
+            db.RootReference.Child("games").Child(newGameData.hostUserID).SetRawJsonValueAsync(JsonUtility.ToJson(newGameData)).ContinueWithOnMainThread(task =>
+            {
+                if (task.Exception != null)
+                    Debug.LogWarning(task.Exception);
+            });
+        }
+        // if this user is client
+        else if (GetUserID == newGameData.clientUserID)
+        {
+            Debug.Log("client");
+
+            newGameData.clientMonsterIDs = GetComponent<SceneNavigator>().myMonsterIDs;
+            newGameData.clientMonsterPowers = GetComponent<SceneNavigator>().myMonsterPowers;
+            newGameData.clientMonsterSizes = GetComponent<SceneNavigator>().myMonsterSizes;
+
+            maySpawnOpposingMonsters = true;
+
+            db.RootReference.Child("games").Child(newGameData.hostUserID).SetRawJsonValueAsync(JsonUtility.ToJson(newGameData)).ContinueWithOnMainThread(task =>
+            {
+                if (task.Exception != null)
+                    Debug.LogWarning(task.Exception);
+            });
+        }
+    }
+
+    void GetGameData(DataSnapshot snap) // is either host or client
     {
         GetDatabase();
         var loadedData = JsonUtility.FromJson<GameData>(snap.GetRawJsonValue());
@@ -300,12 +380,17 @@ public class DatabaseManager : MonoBehaviour
         newGameData.hostUsername = loadedData.hostUsername;
         newGameData.hostSpriteTag = loadedData.hostSpriteTag;
         newGameData.hostMonsterIDs = loadedData.hostMonsterIDs;
+        newGameData.hostMonsterPowers = loadedData.hostMonsterPowers;
+        newGameData.hostMonsterSizes = loadedData.hostMonsterSizes;
 
         newGameData.clientUserID = loadedData.clientUserID;
         newGameData.clientUsername = loadedData.clientUsername;
         newGameData.clientSpriteTag = loadedData.clientSpriteTag;
         newGameData.clientMonsterIDs = loadedData.clientMonsterIDs;
+        newGameData.clientMonsterPowers = loadedData.clientMonsterPowers;
+        newGameData.clientMonsterSizes = loadedData.clientMonsterSizes;
 
+        // if this user is host
         if (newGameData.hostUserID == GetUserID && newGameData.clientUserID != "" && newGameData.hostUserID != newGameData.clientUserID)
         {
             currentGameID = newGameData.hostUserID;
@@ -315,17 +400,37 @@ public class DatabaseManager : MonoBehaviour
             {
                 // show users
                 newGameData.gameProgress = 2;
-                if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().ToString() != "ShowUsers")
-                {
-                    GetComponent<SceneNavigator>().LoadScene("ShowUsers");
-                    db.RootReference.Child("games").Child(newGameData.hostUserID).SetRawJsonValueAsync(JsonUtility.ToJson(newGameData)).ContinueWithOnMainThread(task =>
-                    {
-                        if (task.Exception != null)
-                            Debug.LogWarning(task.Exception);
-                    });
-                }
+                
+                if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().ToString() != "ShowUsers") { GetComponent<SceneNavigator>().LoadScene("ShowUsers"); }
+            }
+            else if (newGameData.gameProgress == 2 && maySpawnOpposingMonsters)
+            {
+                newGameData.gameProgress = 3;
+
+                Debug.Log("frick yes");
             }
         }
+        // if this user is client
+        else if (newGameData.clientUserID == GetUserID && newGameData.hostUserID != "" && newGameData.hostUserID != newGameData.clientUserID)
+        {
+            if (newGameData.gameProgress == 3)
+            {
+                newGameData.gameProgress = 4;
+
+                Debug.Log("click yes");
+
+                //for (int i = 0; i < newGameData.hostMonsterIDs.Count; i++)
+                //{
+
+                //}
+            }
+        }
+
+        db.RootReference.Child("games").Child(newGameData.hostUserID).SetRawJsonValueAsync(JsonUtility.ToJson(newGameData)).ContinueWithOnMainThread(task =>
+        {
+            if (task.Exception != null)
+                Debug.LogWarning(task.Exception);
+        });
     }
 
     void TryJoinGame(DataSnapshot snap) // is client
@@ -339,12 +444,10 @@ public class DatabaseManager : MonoBehaviour
         newGameData.hostUserID = loadedData.hostUserID;
         newGameData.hostUsername = loadedData.hostUsername;
         newGameData.hostSpriteTag = loadedData.hostSpriteTag;
-        newGameData.hostMonsterIDs = loadedData.hostMonsterIDs;
 
         newGameData.clientUserID = GetUserID;
         newGameData.clientUsername = FindObjectOfType<AccountSettings>().username.text;
         newGameData.clientSpriteTag = FindObjectOfType<ProfilePicture>().spriteTag;
-        newGameData.clientMonsterIDs = GetComponent<SceneNavigator>().monsterIDs;
 
         // checks if joining game was successful
         if (newGameData.hostUserID != "" && newGameData.hostUserID != newGameData.clientUserID)

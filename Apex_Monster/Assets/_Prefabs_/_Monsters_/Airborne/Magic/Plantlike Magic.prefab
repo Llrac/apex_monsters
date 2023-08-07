@@ -261,9 +261,7 @@ MonoBehaviour:
   type: Magic
   battleStyle: Airborne
   monsterID: 79
-  attack: 4
-  startHealth: 2
-  currentHealth: 1
+  power: 2
   level: 1
   dragSize: 1.25
   inventoryOffset: {x: 0, y: -0.1}

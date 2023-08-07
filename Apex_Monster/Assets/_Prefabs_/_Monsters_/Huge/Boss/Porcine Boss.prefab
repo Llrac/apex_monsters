@@ -426,9 +426,7 @@ MonoBehaviour:
   type: Boss
   battleStyle: Huge
   monsterID: 45
-  attack: 5
-  startHealth: 16
-  currentHealth: 1
+  power: 9
   level: 1
   dragSize: 1.25
   inventoryOffset: {x: 0, y: -0.2}
